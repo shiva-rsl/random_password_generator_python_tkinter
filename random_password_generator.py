@@ -3,13 +3,13 @@ import random
 import string
 
 
-os.system('clear')
+os.system('cls' if os.name == 'nt' else 'clear')
 
 
 # Variables
 
 DIGITS = '0123456789'
-SYMBOL = """!?@#$%&*^~/\|+=:;.,"'`"""
+SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'`"""
 BRACKET = '[]{}()<>'
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 25
@@ -17,51 +17,59 @@ DEFAULT_PASSWORD_LENGTH = 8
 
 
 
-settings_dict = {
-    'password_length': DEFAULT_PASSWORD_LENGTH,
-    'uppercase': True,
-    'lowercase': True,
-    'digit': True,
-    'space': True,
-    'minus': True,
-    'underline': True,
-    'symbol': True,
-    'bracket': True,
-}
+def ask_if_change_settings(settings):
+
+    prompt = "Do you want to change the default settings? [y/n]: "
+    valid_yes = ['y', '']
+    valid_no = 'n'
+
+    while True:
+        user_answer = input(prompt).strip().lower()
+
+        if user_answer in valid_yes:
+            print('-'*5, 'Changing default settings', '-'*5, sep='')
+            get_password_settings(settings)
+            break
+        elif user_answer == valid_no:
+            random_password_generator(settings)
+            break
+        else:
+            print("Invalid input! Please enter "
+                  "'y' for yes, 'n' for no, "
+                  "or press Enter to accept the default.")
+
 
 
 def get_user_password_length(option, default, min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH):
     while True:
         user_input = input(f'{option} (Default is {default})')
-        if(
-            user_input.isdigit() and
-            int(user_input) >= min_length and
-            int(user_input) <= max_length
-        ):
-            return int(user_input)
-
+        
+        if user_input.isdigit():
+            password_length = int(user_input)
+            if min_length <= password_length <= max_length:
+                return password_length
+            
         print('Invalid input!')
-        print('The password length should be'
-             f'between {min_length} to {max_length}.'
+        print('Password length must be between '
+             f'{min_length} and {max_length}. '
               'Please try again.')
 
 
-
 def get_user_password_settings(option, default):
+    prompt = (
+        f"Include {option}? (Default is {default}) "
+        "(y = True, n = False, Enter = Default): "
+    )
+
     while True:
-        user_input = input(f'Include {option}?'
-                            '(Default is {default})'
-                            '(y = True, n = False, enter = Default) ').lower()
+        user_input = input(prompt).strip().lower()
 
         if user_input == '':
             return default
-
-        if user_input in ['y', 'n']:
+        if user_input in {'y', 'n'}:
             return user_input == 'y'
 
-        print('Invalid input!')
-        print('Please enter y or n.')
-
+        print("Invalid input! Please enter 'y' or 'n'.")
 
 
 def get_password_settings(settings_dict):
@@ -69,23 +77,18 @@ def get_password_settings(settings_dict):
     for option, default in settings_dict.items():
 
         if option == 'password_length':
-            user_choice = get_user_password_length(option, default)
-            settings_dict[option] = user_choice
+            settings_dict[option] = get_user_password_length(option, default)
         else:
-            user_password_length = get_user_password_settings(option, default)
-            settings_dict[option] = user_password_length
-
-    print(settings_dict)
+            settings_dict[option] = get_user_password_settings(option, default)
 
 
 
 def generate_upper_case_char():
-    upper_case_char = string.ascii_uppercase
-    return random.choice(upper_case_char)
+    return random.choice(string.ascii_uppercase)
+
 
 def generate_lower_case_char():
-    lower_case_char = string.ascii_lowercase
-    return random.choice(lower_case_char)
+    return random.choice(string.ascii_lowercase)
 
 
 def generate_digit():
@@ -93,7 +96,7 @@ def generate_digit():
 
 
 def generate_symbol():
-    return random.choice(SYMBOL)
+    return random.choice(SYMBOLS)
 
 
 def generate_bracket():
@@ -101,62 +104,100 @@ def generate_bracket():
 
 
 
-def generate_random_password(settings):
+def generated_password_char(password_settings):
+    char_type = random.choice(password_settings)
 
-    password_settings = []
-    generated_password = ''
+    generators = {
+        'uppercase': generate_upper_case_char,
+        'lowercase': generate_lower_case_char,
+        'bracket': generate_bracket,
+        'symbol': generate_symbol,
+        'digit': generate_digit,
+        'space': lambda: ' ',
+        'minus': lambda: '-',
+        'underline': lambda: '_'
+    }
 
-    for key, value in settings.items():
-        if value == True:
-            password_settings.append(key)
-    print(password_settings)
+    if char_type in generators:
+        return generators[char_type]()
+        
 
-    if 'uppercase' in password_settings:
-        generated_password += generate_upper_case_char()
-    if 'lowercase' in password_settings:
-        generated_password += generate_lower_case_char()
-    if 'bracket' in password_settings:
-        generated_password += generate_bracket()
-    if 'symbol' in password_settings:
-        generated_password += generate_symbol()
-    if 'digit' in password_settings:
-        generated_password += generate_digit()
-    if 'space' in password_settings:
-        generated_password += ' '
-    if 'minus' in password_settings:
-        generated_password += '-'
-    if 'underline' in password_settings:
-        generated_password += '_'
+def random_password_generator(settings):
 
+    password_length = settings['password_length']
+    
+    enabled_char_types = []
+    all_options = ['uppercase', 'lowercase', 'bracket', 'symbol', 'digit', 'space', 'minus', 'underline']
+    
+    for option in all_options:
+        if settings.get(option):
+            enabled_char_types.append(option)
 
-    print('*'*20)
-    print(generated_password)
-    print('*'*20)
+    password_chars = []
+    for _ in range(password_length):
+        password_chars.append(generated_password_char(enabled_char_types))
+
+    return ''.join(password_chars)
 
 
-def regenerate_random_password():
+def print_generated_password(settings):
+    border = '*' * 20
+    print(border)
+    
+    password = random_password_generator(settings)
+    print(f'Generated password: {password}')
+    
+    print(border)
+    
+
+
+def regenerate_random_password(settings):
+
+    prompt = "Regenerate? [y/n] (Enter = yes by default): "
+    valid_yes = ['y', '']
+    valid_no = 'n'
 
     while True:
 
-        regenerate_password = input('Regenerate? (y:yes, n:no, enter:continue): ')
+        user_input = input(prompt).strip().lower()
 
-        if regenerate_password in ['y', 'n', '']:
-            if regenerate_password in ['y', '']:
-                generate_random_password(settings_dict)
-            else:
-                print('Thanks for choosing us.')
-                break
+        if user_input in valid_yes:
+            print_generated_password(settings)
+
+        elif user_input == valid_no:
+            print('Thanks for choosing us. Good luck.')
+            break
+
         else:
-            print('Invalid input. please enter y or n.')
-            print('Please try again.')
+            print("Invalid input. please enter 'y' or 'n'.")
+            
 
 
+def run(settings):
+    """
+    Run the password generator workflow:
+    1. Ask user to change settings.
+    2. Print the generated password.
+    3. Allow user to regenerate password.
+    """
+    ask_if_change_settings(settings_dict)
+    print_generated_password(settings_dict)
+    regenerate_random_password(settings_dict)
+    
 
-def run():
-    get_password_settings(settings_dict)
-    generate_random_password(settings_dict)
-    regenerate_random_password()
 
+if __name__ == "__main__":
+    
+    settings_dict = {
+        'password_length': DEFAULT_PASSWORD_LENGTH,
+        'uppercase': True,
+        'lowercase': True,
+        'digit': True,
+        'space': True,
+        'minus': True,
+        'underline': True,
+        'symbol': True,
+        'bracket': True,
+    }
 
-
-run()
+    run(settings_dict)
