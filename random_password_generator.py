@@ -9,29 +9,58 @@ from typing import Sequence, TypedDict
 BORDER = '*' * 20
 DIGITS = '0123456789'
 SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'`"""
-BRACKET = '[]{}()<>'
+BRACKETS = '[]{}()<>'
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 30
 DEFAULT_PASSWORD_LENGTH = 8
 
 
-def clear_screen():
+def clear_screen() -> None:
+    """
+    Clear the terminal or console screen.
+
+    Attempts to run the appropriate system command to clear the screen 
+    depending on the operating system ('cls' for Windows, 'clear' for Unix/Linux). 
+    If the command fails, it falls back to printing multiple newlines 
+    to simulate clearing the screen.
+    
+    Returns:
+        None
+    """
+
     try:
         os.system('cls' if os.name == 'nt' else 'clear')
     except Exception:
         print('\n' * 100)
 
 
+
 class PasswordSettings(TypedDict):
+    """
+    Represents the settings for generating a password.
+
+    Attributes:
+        password_length (int): Desired length of the generated password.
+        uppercase (bool): Include uppercase letters if True.
+        lowercase (bool): Include lowercase letters if True.
+        space (bool): Include spaces if True.
+        minus (bool): Include minus '-' characters if True.
+        underline (bool): Include underline '_' characters if True.
+        digit (bool): Include digits from the DIGITS string if True.
+        symbol (bool): Include special symbols from the SYMBOLS string if True.
+        bracket (bool): Include brackets from the BRACKETS string if True.
+    """
+
     password_length: int
     uppercase: bool
     lowercase: bool
-    digit: bool
     space: bool
     minus: bool
     underline: bool
+    digit: bool
     symbol: bool
     bracket: bool
+
 
 
 def ask_if_change_settings(settings: PasswordSettings) -> None:
@@ -111,6 +140,7 @@ def get_user_password_length(option: str, default: int,
               'Please try again.')
 
 
+
 def get_user_password_settings(option: str, default: bool) -> bool:
     
     """
@@ -144,6 +174,7 @@ def get_user_password_settings(option: str, default: bool) -> bool:
         print("Invalid input! Please enter 'y' or 'n'.")
 
 
+
 def get_password_settings(settings: PasswordSettings) -> None:
     
     """
@@ -175,9 +206,11 @@ def generate_upper_case_char() -> str:
     return random.choice(string.ascii_uppercase)
 
 
+
 def generate_lower_case_char() -> str:
     """Return a random lowercase ASCII letter."""
     return random.choice(string.ascii_lowercase)
+
 
 
 def generate_digit() -> str:
@@ -185,14 +218,16 @@ def generate_digit() -> str:
     return random.choice(DIGITS)
 
 
+
 def generate_symbol() -> str:
     """Return a random symbol character from the SYMBOLS string."""
     return random.choice(SYMBOLS)
 
 
+
 def generate_bracket() -> str:
     """Return a random bracket character from the BRACKET string."""
-    return random.choice(BRACKET)
+    return random.choice(BRACKETS)
 
 
 
@@ -234,6 +269,7 @@ def generated_password_char(settings: Sequence[str]) -> str:
     return generator_func()
         
 
+
 def random_password_generator(settings: PasswordSettings) -> str:
     """
     Generates a random password based on the given settings.
@@ -249,7 +285,7 @@ def random_password_generator(settings: PasswordSettings) -> str:
     password_length = settings['password_length']
     
     enabled_char_types = []
-    all_options = ['uppercase', 'lowercase', 'bracket', 'symbol', 'digit', 'space', 'minus', 'underline']
+    all_options = ['uppercase', 'lowercase', 'space', 'minus', 'underline', 'digit', 'symbol', 'bracket']
     
     for option in all_options:
         if settings.get(option):
@@ -260,6 +296,7 @@ def random_password_generator(settings: PasswordSettings) -> str:
         password_chars.append(generated_password_char(enabled_char_types))
 
     return ''.join(password_chars)
+
 
 
 def print_generated_password(settings: PasswordSettings) -> None:
@@ -275,6 +312,8 @@ def print_generated_password(settings: PasswordSettings) -> None:
         settings (PasswordSettings): 
             An object containing the user-defined settings for password generation.
 
+    Returns:
+        None
     """
 
     print(BORDER)
@@ -290,6 +329,9 @@ def regenerate_random_password(settings: PasswordSettings) -> None:
     
     Args:
         settings (dict): A dictionary of password settings used for generation.
+
+    Returns:
+        None
     """
     
     prompt = "Regenerate? [y/n] (Enter = yes by default): "
@@ -324,8 +366,11 @@ def run(settings: PasswordSettings) -> None:
 
     Args:
         settings (PasswordSettings): The current configuration for password generation.
+
+    Returns:
+        None
     """
-    
+
     clear_screen()
     ask_if_change_settings(settings)
     print_generated_password(settings)
@@ -339,10 +384,10 @@ if __name__ == "__main__":
         'password_length': DEFAULT_PASSWORD_LENGTH,
         'uppercase': True,
         'lowercase': True,
-        'digit': True,
         'space': True,
         'minus': True,
         'underline': True,
+        'digit': True,
         'symbol': True,
         'bracket': True,
     }
