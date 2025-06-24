@@ -2,13 +2,11 @@
 <h1 align='center'> Random Password Generator - Python Tkinter </h1>
 
 <p align='center'>
-
 <img src="https://img.shields.io/badge/Language-Python-blue" />
 <img src="https://img.shields.io/badge/Interface-GUI-orange" />
 <img src="https://img.shields.io/badge/Built%20With-Tkinter-brightgreen" />
 <img src="https://img.shields.io/badge/Built%20With-Tkinter-blueviolet" />
 <img src="https://img.shields.io/badge/License-MIT-yellow" />
-
 </p>
 
 
@@ -30,6 +28,8 @@
 
 
 ## 📝 Discription
+
+A Python GUI tool to generate strong and highly unpredictable passwords in a few clicks. You can choose what kinds of characters to include, from letters to symbols, for more secure passwords.
 
 
 ## 🚀 Installation
@@ -62,6 +62,40 @@ python random_password_generator_GUI.py
 
 
 ## ✨ Features
+This app offers the following customizable options for generating passwords:
+
+    ✅ Lowercase letters (a, b, c, ...)
+
+    ✅ Uppercase letters (A, B, C, ...)
+
+    ✅ Digits (0, 1, 2, ...)
+
+    ✅ Minus sign (-)
+
+    ✅ Underline (_)
+
+    ✅ Spaces ( )
+
+    ✅ Symbols (!?@#$%&*^~/\|+=:;.,\"\')
+
+    ✅ Brackets ([, ], {, }, (, ), <, >)
+
+Additional features:
+
+    🎯 Generate 1–100 passwords at a time
+
+    🔒 Define password length (8–30 characters)
+
+    📋 Copy passwords to clipboard
+
+    💾 Save passwords
+
+    🗑️ Clear generated passwords
+
+    ❌ Exit the app easily
+
+    ℹ️ About section for information
+    
 
 ## 📸 Screenshots
 

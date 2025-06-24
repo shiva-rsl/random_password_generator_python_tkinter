@@ -126,7 +126,7 @@ label_about.grid(row=9, column=0, columnspan=3, )
 label_password_strength = tk.Label(
     master=labelframe_generated_password,
     font=('Noto Sans', 10), 
-    text='Password strength',
+    text='Password strength:',
 )
 label_password_strength.grid(row=1, column=0, )
 
@@ -150,9 +150,11 @@ checkbox_options = {
     'Minus (-)': tk.BooleanVar(),
     'Underline (_)': tk.BooleanVar(),
     'Space ( )': tk.BooleanVar(),
-    'Symbol (!@#$%^&*<>+=)': tk.BooleanVar(),
+    "Symbol (!?@#$%&*^~/|\:;.,\"\')": tk.BooleanVar(),
     'Brackets ([, ], {, }, (, ), <, >)': tk.BooleanVar()
 }
+
+
 for index, (text, var) in enumerate(checkbox_options.items()):
     row = index // 2
     col = index % 2
@@ -194,7 +196,7 @@ def clear_funt():
 def about_func():
     text = """The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
-    numbers, and special characters."""
+    numbers and special characters."""
     label_about['text'] = text
 
 
@@ -253,7 +255,6 @@ button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 # ProgressBar
 progressbar_generated_password = ttk.Progressbar(
     master=labelframe_generated_password,
-
 )
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
