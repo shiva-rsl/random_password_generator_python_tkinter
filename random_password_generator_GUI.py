@@ -1,7 +1,49 @@
+import os
+import re
 import tkinter as tk
+import random_password_generator_CLI
 from tkinter import ttk
 from tkinter import E,W,S,N
+from random_password_generator_CLI import *
 
+
+DEFAULT_PASSWORD_LENGTH = 8
+password_option_user = []
+checkbox_variables = []
+password_option = {}
+
+
+# Functions
+def clear_screen():
+    try:
+        os.system('cls' if os.name == 'nt' else 'clear')
+    except:
+        print('\n' * 100)
+clear_screen()
+
+
+def clear_function():
+    entry_generated_password.delete(0.0, tk.END)
+
+
+def about_function():
+    text = """The Random Password Generator enables you to generate secure and highly
+    unpredictable passwords through an optional mix of lowercase and uppercase letters,
+    numbers and special characters."""
+    label_about['text'] = text
+
+
+def generate_passowrd_function():
+    for i, (text, var) in enumerate(checkbox_options.items()):
+        checkbox_name = re.sub(r"\s\(.*\)", '', text)
+        print(f'{i}: {checkbox_name} = {var.get()}')
+        password_option[checkbox_name.lower()] = var.get()
+    password_option['password_length'] = int(spinbox_password_length.get())
+    password_option['password_nembers'] = int(spinbox_password_quantity.get())
+    print(password_option)
+    generated_password = random_password_generator(password_option)
+    entry_generated_password.insert(tk.END, generated_password+"\n")
+          
 
 # Main window
 window = tk.Tk()
@@ -12,7 +54,6 @@ window.title('Random Password Generator App')
 window.columnconfigure(0, weight=1)
 window.columnconfigure(1, weight=2)
 window.columnconfigure(2, weight=1)
-# Optional: use a consistent background color
 window.configure(bg="#DFE4E8")
 
 
@@ -146,7 +187,7 @@ entry_generated_password.grid(row=0, column=1, pady=5, )
 checkbox_options = {
     'Uppercase (A, B, C, ...)': tk.BooleanVar(),
     'Lowercase (a, b, c, ...)': tk.BooleanVar(),
-    'Digits (0, 1, 2, ...)': tk.BooleanVar(),
+    'Digit (0, 1, 2, ...)': tk.BooleanVar(),
     'Minus (-)': tk.BooleanVar(),
     'Underline (_)': tk.BooleanVar(),
     'Space ( )': tk.BooleanVar(),
@@ -156,13 +197,18 @@ checkbox_options = {
 
 
 for index, (text, var) in enumerate(checkbox_options.items()):
+    
+    vars = tk.BooleanVar()
+    checkbox_variables.append(vars)
+    checkbox_options[text] = vars
+
     row = index // 2
     col = index % 2
     cb = tk.Checkbutton(
         master=labelframe_settings,
         text=text,
-        variable=var,
-        font=('Noto Sans', 10)
+        variable=vars,
+        font=('Noto Sans', 10),
     )
     cb.grid(row=2 + row, column=col, sticky='w', padx=20, pady=5)
 
@@ -187,18 +233,6 @@ spinbox_password_quantity = tk.Spinbox(
 )
 spinbox_password_quantity.grid(row=1, column=1, pady=(20, 30),  ipadx=10, ipady=5, sticky='w')
 
-# Functions
-
-def clear_funt():
-    entry_generated_password.delete(0.0, tk.END)
-
-
-def about_func():
-    text = """The Random Password Generator enables you to generate secure and highly
-    unpredictable passwords through an optional mix of lowercase and uppercase letters,
-    numbers and special characters."""
-    label_about['text'] = text
-
 
 # Buttons
 button_generate = tk.Button(
@@ -208,6 +242,7 @@ button_generate = tk.Button(
     activebackground='yellow',
     anchor='center',
     font=('Noto Sans', 10),
+    command=generate_passowrd_function,
 )
 button_generate.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 
@@ -230,7 +265,7 @@ button_clear = tk.Button(
     master=labelframe_buttons, 
     text='Clear',
     font=('Noto Sans', 10),
-    command=clear_funt,
+    command=clear_function,
 )
 button_clear.grid(row=0, column=2, ipadx=25, ipady=10)
 
@@ -239,7 +274,7 @@ button_about = tk.Button(
     master=labelframe_buttons, 
     text='About',
     font=('Noto Sans', 10),
-    command=about_func,
+    command=about_function,
 )
 button_about.grid(row=0, column=3, ipadx=23, ipady=10)
 
@@ -260,4 +295,3 @@ progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SN
 
 
 window.mainloop()
-
