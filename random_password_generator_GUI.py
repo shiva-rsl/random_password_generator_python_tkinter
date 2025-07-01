@@ -36,8 +36,11 @@ def generate_passowrd_function():
             password_option[checkbox_name.lower()] = var.get()
 
         password_option['password_length'] = int(spinbox_password_length.get())
-        generated_password = random_password_generator(password_option)
-        entry_generated_password.insert(tk.END, generated_password+"\n")
+        password_quantity = int(spinbox_password_quantity.get())
+
+        for _ in range(password_quantity):
+            generated_password = random_password_generator(password_option)
+            entry_generated_password.insert(tk.END, generated_password+"\n")
 
     except IndexError:
         error_messagebox_function()
