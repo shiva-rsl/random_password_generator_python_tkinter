@@ -4,6 +4,7 @@ import tkinter as tk
 import random_password_generator_CLI
 from tkinter import ttk
 from tkinter import E,W,S,N
+from tkinter import messagebox
 from random_password_generator_CLI import *
 
 
@@ -22,6 +23,45 @@ def clear_screen():
 clear_screen()
 
 
+def error_messagebox_function():
+    messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
+    
+
+def generate_passowrd_function():
+
+    try: 
+
+        for _, (text, var) in enumerate(checkbox_options.items()):
+            checkbox_name = re.sub(r"\s\(.*\)", '', text)
+            password_option[checkbox_name.lower()] = var.get()
+
+        password_option['password_length'] = int(spinbox_password_length.get())
+        generated_password = random_password_generator(password_option)
+        entry_generated_password.insert(tk.END, generated_password+"\n")
+
+    except IndexError:
+        error_messagebox_function()
+            
+          
+def button_show_copy_messege():
+    
+    password_count = int(spinbox_password_quantity.get())
+    print(password_count)
+    if password_count == 1:
+        label_about['text'] = 'Password copied!'
+        label_about['fg'] = 'green'
+    else:
+        label_about['text'] = 'Passwords copied!'
+        label_about['fg'] = 'green'
+    window.after(2000, lambda: label_about.config(text=''))
+
+
+def copy_to_clipboard_function():
+    labelframe_generated_password.clipboard_clear()
+    labelframe_generated_password.clipboard_append(entry_generated_password.get('1.0', tk.END).rstrip())
+    button_show_copy_messege()
+
+
 def clear_function():
     entry_generated_password.delete(0.0, tk.END)
 
@@ -30,20 +70,11 @@ def about_function():
     text = """The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters."""
-    label_about['text'] = text
+    if label_about['text'] == '':
+        label_about['text'] = text
+    else:
+        label_about['text'] = ''
 
-
-def generate_passowrd_function():
-    for i, (text, var) in enumerate(checkbox_options.items()):
-        checkbox_name = re.sub(r"\s\(.*\)", '', text)
-        print(f'{i}: {checkbox_name} = {var.get()}')
-        password_option[checkbox_name.lower()] = var.get()
-    password_option['password_length'] = int(spinbox_password_length.get())
-    password_option['password_nembers'] = int(spinbox_password_quantity.get())
-    print(password_option)
-    generated_password = random_password_generator(password_option)
-    entry_generated_password.insert(tk.END, generated_password+"\n")
-          
 
 # Main window
 window = tk.Tk()
@@ -192,7 +223,7 @@ checkbox_options = {
     'Underline (_)': tk.BooleanVar(),
     'Space ( )': tk.BooleanVar(),
     "Symbol (!?@#$%&*^~/|\:;.,\"\')": tk.BooleanVar(),
-    'Brackets ([, ], {, }, (, ), <, >)': tk.BooleanVar()
+    'Bracket ([, ], {, }, (, ), <, >)': tk.BooleanVar()
 }
 
 
@@ -257,6 +288,7 @@ button_copy_to_clipboard = tk.Button(
     master=labelframe_buttons, 
     text='Copy to clipboard',
     font=('Noto Sans', 10),
+    command=copy_to_clipboard_function,
 )
 button_copy_to_clipboard.grid(row=0, column=1, ipadx=12, ipady=10)
 

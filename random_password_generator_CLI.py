@@ -8,7 +8,7 @@ from typing import Sequence, TypedDict
 
 BORDER = '*' * 20
 DIGITS = '0123456789'
-SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'`"""
+SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'"""
 BRACKETS = '[]{}()<>'
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 30
