@@ -52,15 +52,22 @@ def button_show_copy_messege():
     password_count = int(spinbox_password_quantity.get())
     print(password_count)
     if password_count == 1:
-        label_about['text'] = 'Password copied!'
-        label_about['fg'] = 'green'
+        label_guidance_text['text'] = 'Password copied!'
+        label_guidance_text['fg'] = 'green'
     else:
-        label_about['text'] = 'Passwords copied!'
-        label_about['fg'] = 'green'
-    window.after(2000, lambda: label_about.config(text=''))
+        label_guidance_text['text'] = 'Passwords copied!'
+        label_guidance_text['fg'] = 'green'
+    window.after(2000, lambda: label_guidance_text.config(text=''))
 
 
 def copy_to_clipboard_function():
+    
+    generated_passwrods = entry_generated_password.get('0.0', tk.END).rstrip()
+    
+    if generated_passwrods == '':
+        messagebox.showinfo('Error', 'There is nothing to be copied!')
+        return
+    
     labelframe_generated_password.clipboard_clear()
     labelframe_generated_password.clipboard_append(entry_generated_password.get('1.0', tk.END).rstrip())
     button_show_copy_messege()
@@ -74,10 +81,10 @@ def about_function():
     text = """The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters."""
-    if label_about['text'] == '':
-        label_about['text'] = text
+    if label_guidance_text['text'] == '':
+        label_guidance_text['text'] = text
     else:
-        label_about['text'] = ''
+        label_guidance_text['text'] = ''
 
 
 def save_password_function(passwrods):
@@ -97,7 +104,7 @@ def save_password_function(passwrods):
 def save_function():
     generated_passwrods = entry_generated_password.get('0.0', tk.END).rstrip()
     if generated_passwrods == '':
-        messagebox.showinfo('Error', 'There is nothing to be saved')
+        messagebox.showinfo('Error', 'There is nothing to be saved!')
         return
     save_password_function(generated_passwrods)
         
@@ -214,11 +221,11 @@ label_random_password = tk.Label(
 label_random_password.grid(row=0, column=0, padx=20, pady=30, sticky='E', )
 
 
-label_about = tk.Label(
+label_guidance_text = tk.Label(
     master=window,
     background='#DFE4E8',
 )
-label_about.grid(row=9, column=0, columnspan=3, )
+label_guidance_text.grid(row=9, column=0, columnspan=3, )
 
 
 label_password_strength = tk.Label(
