@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import E,W,S,N
 from tkinter import messagebox
 from random_password_generator_CLI import *
+from tkinter.filedialog import asksaveasfile
 
 
 DEFAULT_PASSWORD_LENGTH = 8
@@ -78,6 +79,28 @@ def about_function():
     else:
         label_about['text'] = ''
 
+
+def save_password_function(passwrods):
+    file = asksaveasfile(
+            mode='w', 
+            title='Save Passwords', 
+            filetypes=[('Text Document','*.txt'), ('All Files', '*.*')], 
+            defaultextension='.txt', 
+        )
+
+    if file:
+        content = passwrods
+        file.write(content)
+        file.close()
+
+
+def save_function():
+    generated_passwrods = entry_generated_password.get('0.0', tk.END).rstrip()
+    if generated_passwrods == '':
+        messagebox.showinfo('Error', 'There is nothing to be saved')
+        return
+    save_password_function(generated_passwrods)
+        
 
 # Main window
 window = tk.Tk()
@@ -280,12 +303,15 @@ button_generate = tk.Button(
 )
 button_generate.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 
+
 button_save = tk.Button(
     master=labelframe_buttons, 
     text='Save Password(s)',
     font=('Noto Sans', 10),
+    command=save_function,
 )
 button_save.grid(row=0, column=0, ipadx=12, ipady=10)
+
 
 button_copy_to_clipboard = tk.Button(
     master=labelframe_buttons, 
