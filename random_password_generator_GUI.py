@@ -37,26 +37,17 @@ def generate_passowrd_function():
             password_option[checkbox_name.lower()] = var.get()
 
         password_option['password_length'] = int(spinbox_password_length.get())
-        password_quantity = int(spinbox_password_quantity.get())
 
-        for _ in range(password_quantity):
-            generated_password = random_password_generator(password_option)
-            entry_generated_password.insert(tk.END, generated_password+"\n")
+        generated_password = random_password_generator(password_option)
+        entry_generated_password.insert(tk.END, generated_password+"\n")
 
     except IndexError:
         error_messagebox_function()
             
           
 def button_show_copy_messege():
-    
-    password_count = int(spinbox_password_quantity.get())
-    print(password_count)
-    if password_count == 1:
-        label_guidance_text['text'] = 'Password copied!'
-        label_guidance_text['fg'] = 'green'
-    else:
-        label_guidance_text['text'] = 'Passwords copied!'
-        label_guidance_text['fg'] = 'green'
+    label_guidance_text['text'] = 'Password copied!'
+    label_guidance_text['fg'] = 'green' 
     window.after(2000, lambda: label_guidance_text.config(text=''))
 
 
@@ -83,6 +74,7 @@ def about_function():
     numbers and special characters."""
     if label_guidance_text['text'] == '':
         label_guidance_text['text'] = text
+        label_guidance_text['fg'] = 'black'
     else:
         label_guidance_text['text'] = ''
 
@@ -156,8 +148,6 @@ label_texts = {
     "subtitle": "A free tool to quickly create your password",
     "length": "Length of generated password: ",
     "length_note": "(8 to 30 Chars)",
-    "quantity": "Number of Passwords: ",
-    "quantity_note": "(1-100 Passwords)",
     "output": "Your Password: "
 }
 
@@ -187,7 +177,7 @@ label_password_length = tk.Label(
     text=label_texts['length'],
     font=('Noto Sans', 10),
 )
-label_password_length.grid(row=0, column=0, padx=(10, 5), pady=(20, 0), sticky='w')
+label_password_length.grid(row=0, column=0, padx=(30, 0), pady=(30, 30), sticky='w')
 
 
 label_password_length_numbers = tk.Label(
@@ -195,21 +185,7 @@ label_password_length_numbers = tk.Label(
     text=label_texts['length_note'],
     font=('Noto Sans', 10),
 )
-label_password_length_numbers.grid(row=0, column=2, padx=(5, 10), pady=(20, 0), sticky='w')
-
-label_password_quantity = tk.Label(
-    master=labelframe_settings, 
-    text=label_texts['quantity'],
-    font=('Noto Sans', 10),
-)
-label_password_quantity.grid(row=1, column=0, padx=(10, 5), pady=(20, 30), sticky='w')
-
-label_password_quantity_numbers = tk.Label(
-    master=labelframe_settings, 
-    text=label_texts['quantity_note'],
-    font=('Noto Sans', 10),
-)
-label_password_quantity_numbers.grid(row=1, column=2, padx=(5, 10), pady=(20, 30), sticky='w')
+label_password_length_numbers.grid(row=0, column=2, padx=(0, 80), pady=(30, 30), sticky='w')
 
 
 label_random_password = tk.Label(
@@ -286,16 +262,7 @@ spinbox_password_length = tk.Spinbox(
     width=20,
     relief='sunken',
 )
-spinbox_password_length.grid(row=0, column=1, pady=(20, 0),  ipadx=10, ipady=5, sticky='w')
-
-spinbox_password_quantity = tk.Spinbox(
-    master=labelframe_settings, 
-    from_=1, 
-    to=100, 
-    width=20,
-    relief='sunken',
-)
-spinbox_password_quantity.grid(row=1, column=1, pady=(20, 30),  ipadx=10, ipady=5, sticky='w')
+spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, sticky='w')
 
 
 # Buttons
