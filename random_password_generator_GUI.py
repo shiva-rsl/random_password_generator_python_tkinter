@@ -39,7 +39,8 @@ def generate_passowrd_function():
         password_option['password_length'] = int(spinbox_password_length.get())
 
         generated_password = random_password_generator(password_option)
-        entry_generated_password.insert(tk.END, generated_password+"\n")
+        entry_generated_password['values'] = generated_password
+        entry_generated_password.set(generated_password)
 
     except IndexError:
         error_messagebox_function()
@@ -148,7 +149,8 @@ label_texts = {
     "subtitle": "A free tool to quickly create your password",
     "length": "Length of generated password: ",
     "length_note": "(8 to 30 Chars)",
-    "output": "Your Password: "
+    "output": "Your Password: ",
+    "entropy": "Password entropy:"
 }
 
 
@@ -190,11 +192,27 @@ label_password_length_numbers.grid(row=0, column=2, padx=(0, 80), pady=(30, 30),
 
 label_random_password = tk.Label(
     master=labelframe_generated_password, 
-    text='Your Password(s): ',
+    text=label_texts['output'],
     font=('Noto Sans', 15),
     anchor='center'
 )
 label_random_password.grid(row=0, column=0, padx=20, pady=30, sticky='E', )
+
+
+button_entropy_calc = tk.Label(
+    master=labelframe_generated_password,
+    font=('Noto Sans', 12),
+    text=label_texts['entropy']
+)
+button_entropy_calc.grid(row=1, column=0, )
+
+
+label_password_strength = tk.Label(
+    master=labelframe_generated_password,
+    font=('Noto Sans', 12), 
+    text='Password strength:',
+)
+label_password_strength.grid(row=2, column=0, )
 
 
 label_guidance_text = tk.Label(
@@ -204,21 +222,14 @@ label_guidance_text = tk.Label(
 label_guidance_text.grid(row=9, column=0, columnspan=3, )
 
 
-label_password_strength = tk.Label(
+# Combobox
+
+entry_generated_password = ttk.Combobox(
     master=labelframe_generated_password,
-    font=('Noto Sans', 10), 
-    text='Password strength:',
-)
-label_password_strength.grid(row=1, column=0, )
-
-
-# texts
-
-entry_generated_password = tk.Text(
-    master=labelframe_generated_password,
-    height=10,
-    width=55,
-
+    height=2,
+    width=20,
+    font=('Noto Sans', 15),
+    # state='readonly',
 )
 entry_generated_password.grid(row=0, column=1, pady=5, )
 
@@ -266,7 +277,7 @@ spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, 
 
 
 # Buttons
-button_generate = tk.Button(
+button_generate_password = tk.Button(
     master=labelframe_settings, 
     text='Generate Password', 
     background='yellow', 
@@ -275,7 +286,7 @@ button_generate = tk.Button(
     font=('Noto Sans', 10),
     command=generate_passowrd_function,
 )
-button_generate.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
+button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 
 
 button_save = tk.Button(
@@ -326,7 +337,7 @@ button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 progressbar_generated_password = ttk.Progressbar(
     master=labelframe_generated_password,
 )
-progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
+progressbar_generated_password.grid(row=2, column=1, padx=5, pady=10, sticky='SNEW') 
 
 
 window.mainloop()
