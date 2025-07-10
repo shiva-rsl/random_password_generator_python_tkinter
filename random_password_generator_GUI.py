@@ -1,7 +1,7 @@
 import os
 import re
+import math
 import tkinter as tk
-import random_password_generator_CLI
 from tkinter import ttk
 from tkinter import E,W,S,N
 from tkinter import messagebox
@@ -10,9 +10,11 @@ from tkinter.filedialog import asksaveasfile
 
 
 DEFAULT_PASSWORD_LENGTH = 8
-password_option_user = []
+
+
 checkbox_variables = []
 password_option = {}
+passwords = []
 
 
 # Functions
@@ -26,7 +28,11 @@ clear_screen()
 
 def error_messagebox_function():
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
-    
+
+
+def get_index(*args):
+    print(var.get())
+
 
 def generate_passowrd_function():
 
@@ -39,14 +45,15 @@ def generate_passowrd_function():
         password_option['password_length'] = int(spinbox_password_length.get())
 
         generated_password = random_password_generator(password_option)
-        entry_generated_password['values'] = generated_password
-        entry_generated_password.set(generated_password)
+        passwords.append(generated_password)
+        combobox_generated_password['values'] = passwords
+        combobox_generated_password.set(passwords[-1])
 
     except IndexError:
         error_messagebox_function()
-            
-          
-def button_show_copy_messege():
+
+
+def show_copy_messege():
     label_guidance_text['text'] = 'Password copied!'
     label_guidance_text['fg'] = 'green' 
     window.after(2000, lambda: label_guidance_text.config(text=''))
@@ -54,19 +61,19 @@ def button_show_copy_messege():
 
 def copy_to_clipboard_function():
     
-    generated_passwrods = entry_generated_password.get('0.0', tk.END).rstrip()
+    generated_passwrods = combobox_generated_password.get('0.0', tk.END).rstrip()
     
     if generated_passwrods == '':
         messagebox.showinfo('Error', 'There is nothing to be copied!')
         return
     
     labelframe_generated_password.clipboard_clear()
-    labelframe_generated_password.clipboard_append(entry_generated_password.get('1.0', tk.END).rstrip())
-    button_show_copy_messege()
+    labelframe_generated_password.clipboard_append(combobox_generated_password.get('1.0', tk.END).rstrip())
+    show_copy_messege()
 
 
 def clear_function():
-    entry_generated_password.delete(0.0, tk.END)
+    combobox_generated_password.delete(0.0, tk.END)
 
 
 def about_function():
@@ -95,7 +102,7 @@ def save_password_function(passwrods):
 
 
 def save_function():
-    generated_passwrods = entry_generated_password.get('0.0', tk.END).rstrip()
+    generated_passwrods = combobox_generated_password.get('0.0', tk.END).rstrip()
     if generated_passwrods == '':
         messagebox.showinfo('Error', 'There is nothing to be saved!')
         return
@@ -104,7 +111,7 @@ def save_function():
 
 # Main window
 window = tk.Tk()
-window.geometry('700x925')
+window.geometry('700x850')
 window.resizable(width=False, height=False)
 window.title('Random Password Generator App')
 
@@ -149,8 +156,9 @@ label_texts = {
     "subtitle": "A free tool to quickly create your password",
     "length": "Length of generated password: ",
     "length_note": "(8 to 30 Chars)",
-    "output": "Your Password: ",
-    "entropy": "Password entropy:"
+    "output": "Password: ",
+    "entropy": "Total Entropy:",
+    "strength": "Strength: ",
 }
 
 
@@ -199,20 +207,27 @@ label_random_password = tk.Label(
 label_random_password.grid(row=0, column=0, padx=20, pady=30, sticky='E', )
 
 
-button_entropy_calc = tk.Label(
+label_password_strength = tk.Label(
+    master=labelframe_generated_password,
+    font=('Noto Sans', 12), 
+    text=label_texts['strength'],
+)
+label_password_strength.grid(row=1, column=0, pady=10)
+
+
+label_entropy_calc = tk.Label(
     master=labelframe_generated_password,
     font=('Noto Sans', 12),
     text=label_texts['entropy']
 )
-button_entropy_calc.grid(row=1, column=0, )
+label_entropy_calc.grid(row=2, column=0, pady=10)
 
 
-label_password_strength = tk.Label(
+label_entropy_value = tk.Label(
     master=labelframe_generated_password,
-    font=('Noto Sans', 12), 
-    text='Password strength:',
+    font=('Noto Sans', 12, 'bold'),
 )
-label_password_strength.grid(row=2, column=0, )
+label_entropy_value.grid(row=2, column=1, sticky='w')
 
 
 label_guidance_text = tk.Label(
@@ -223,15 +238,15 @@ label_guidance_text.grid(row=9, column=0, columnspan=3, )
 
 
 # Combobox
-
-entry_generated_password = ttk.Combobox(
+var = tk.StringVar()
+combobox_generated_password = ttk.Combobox(
     master=labelframe_generated_password,
-    height=2,
-    width=20,
+    width=28,
     font=('Noto Sans', 15),
-    # state='readonly',
+    values=passwords,
+    textvariable=var
 )
-entry_generated_password.grid(row=0, column=1, pady=5, )
+combobox_generated_password.grid(row=0, column=1, padx=5)
 
 
 # Checkboxs
@@ -247,7 +262,7 @@ checkbox_options = {
 }
 
 
-for index, (text, var) in enumerate(checkbox_options.items()):
+for index, (text, checkbox_var) in enumerate(checkbox_options.items()):
     
     vars = tk.BooleanVar()
     checkbox_variables.append(vars)
@@ -336,8 +351,11 @@ button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 # ProgressBar
 progressbar_generated_password = ttk.Progressbar(
     master=labelframe_generated_password,
+    
 )
-progressbar_generated_password.grid(row=2, column=1, padx=5, pady=10, sticky='SNEW') 
+progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
+
+var.trace('w', get_index)
 
 window.mainloop()
