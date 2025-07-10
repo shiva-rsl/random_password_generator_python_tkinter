@@ -30,14 +30,6 @@ def error_messagebox_function():
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
 
 
-def get_index(*args):
-    print(var.get())
-
-
-def selection_generated_password():
-    return var.trace('w', get_index)
-
-
 def password_range_calculation():
     password_range = 0
 
@@ -74,12 +66,45 @@ def show_password_entropy():
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
+def strength_password_calculation():
+    
+    strength_level = ''
+    strength_color = ''
+
+    password_entropy = password_entropy_calculation()
+    
+    if password_entropy < 41:
+        strength_level = '🔴 Very Weak'
+        strength_color = "#f01010"
+    elif password_entropy < 61:
+        strength_level = '🟠 Weak'
+        strength_color = "#ed761c"
+    elif password_entropy < 81:
+        strength_level = '🟡 Moderate'
+        strength_color = "#EFE63E"
+    elif password_entropy < 101:
+        strength_level = '🟢 Strong'
+        strength_color = "#06be06"
+    else:
+        strength_level = '🟣 Very Strong'
+        strength_color = "#e52bf2"
+    
+    return strength_level, strength_color
+
+
+def show_strength_password():
+    strength_level, strength_color  = strength_password_calculation()
+    label_show_strength['text'] = strength_level
+    label_show_strength['fg'] = strength_color
+
+
+
 def generate_passowrd_function():
 
     try: 
         
         for _, (key, value) in enumerate(checkbox_options.items()):
-            checkbox_name = re.sub(r"\s\(.*\)", '', key)
+            checkbox_name = re.sub(r'\s\(.*\)', '', key)
             password_option[checkbox_name.lower()] = value.get()
 
         password_option['password_length'] = int(spinbox_password_length.get())
@@ -89,11 +114,9 @@ def generate_passowrd_function():
         combobox_generated_password['values'] = passwords
         combobox_generated_password.set(passwords[-1])
 
-        selection_password = var.get()
-        password_length = len(selection_password)
-        print(password_length)
-
         show_password_entropy()
+
+        show_strength_password()
         
 
     except IndexError:
@@ -125,12 +148,13 @@ def clear_function():
     combobox_generated_password.set('')
     combobox_generated_password['values'] = ()
     label_entropy_value['text'] = ''
+    label_show_strength['text'] = ''
 
 
 def about_function():
-    text = """The Random Password Generator enables you to generate secure and highly
+    text = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
-    numbers and special characters."""
+    numbers and special characters.'''
     if label_guidance_text['text'] == '':
         label_guidance_text['text'] = text
         label_guidance_text['fg'] = 'black'
@@ -169,7 +193,7 @@ window.title('Random Password Generator App')
 window.columnconfigure(0, weight=1)
 window.columnconfigure(1, weight=2)
 window.columnconfigure(2, weight=1)
-window.configure(bg="#DFE4E8")
+window.configure(bg='#DFE4E8')
 
 
 # LabelFrames
@@ -203,13 +227,13 @@ labelframe_buttons.grid(row=4, column=0, ipadx=15, ipady=0, padx=(10, 10), pady=
 # Labels
 
 label_texts = {
-    "title": "Random Password Generator",
-    "subtitle": "A free tool to quickly create your password",
-    "length": "Length of generated password: ",
-    "length_note": "(8 to 30 Chars)",
-    "output": "Password: ",
-    "entropy": "Total Entropy:",
-    "strength": "Strength: ",
+    'title': 'Random Password Generator',
+    'subtitle': 'A free tool to quickly create your password',
+    'length': 'Length of generated password: ',
+    'length_note': '(8 to 30 Chars)',
+    'output': 'Password: ',
+    'entropy': 'Total Entropy:',
+    'strength': 'Strength: ',
 }
 
 
@@ -266,6 +290,13 @@ label_password_strength = tk.Label(
 label_password_strength.grid(row=1, column=0, pady=10)
 
 
+label_show_strength = tk.Label(
+    master=labelframe_generated_password,
+    font=('Noto Sans', 12, 'bold'),
+)
+label_show_strength.grid(row=1, column=2)
+
+
 label_entropy_calc = tk.Label(
     master=labelframe_generated_password,
     font=('Noto Sans', 12),
@@ -288,6 +319,7 @@ label_guidance_text = tk.Label(
 label_guidance_text.grid(row=9, column=0, columnspan=3, )
 
 
+
 # Combobox
 var = tk.StringVar()
 combobox_generated_password = ttk.Combobox(
@@ -308,7 +340,7 @@ checkbox_options = {
     'Minus (-)': tk.BooleanVar(),
     'Underline (_)': tk.BooleanVar(),
     'Space ( )': tk.BooleanVar(),
-    "Symbol (!?@#$%&*^~/|\:;.,\"\')": tk.BooleanVar(),
+    """Symbol (!?@#$%&*^~/|\:;.,\'\')""": tk.BooleanVar(),
     'Bracket ([, ], {, }, (, ), <, >)': tk.BooleanVar()
 }
 
@@ -407,6 +439,4 @@ progressbar_generated_password = ttk.Progressbar(
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
 
-selection_generated_password()
-print(password_option)
 window.mainloop()
