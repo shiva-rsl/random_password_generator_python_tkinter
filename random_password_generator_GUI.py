@@ -98,22 +98,25 @@ def show_strength_password():
     label_show_strength['fg'] = strength_color
 
 
+def generate_password():
+    for _, (key, value) in enumerate(checkbox_options.items()):
+        checkbox_name = re.sub(r'\s\(.*\)', '', key)
+        password_option[checkbox_name.lower()] = value.get()
 
-def generate_passowrd_function():
+    password_option['password_length'] = int(spinbox_password_length.get())
+
+    generated_password = random_password_generator(password_option)
+    passwords.append(generated_password)
+    combobox_generated_password['values'] = passwords
+    combobox_generated_password.set(passwords[-1])
+
+
+def generate_passowrd_button_function():
 
     try: 
         
-        for _, (key, value) in enumerate(checkbox_options.items()):
-            checkbox_name = re.sub(r'\s\(.*\)', '', key)
-            password_option[checkbox_name.lower()] = value.get()
-
-        password_option['password_length'] = int(spinbox_password_length.get())
-
-        generated_password = random_password_generator(password_option)
-        passwords.append(generated_password)
-        combobox_generated_password['values'] = passwords
-        combobox_generated_password.set(passwords[-1])
-
+        generate_password()
+        
         show_password_entropy()
 
         show_strength_password()
@@ -121,6 +124,28 @@ def generate_passowrd_function():
 
     except IndexError:
         error_messagebox_function()
+
+
+def save_password_function(passwrods):
+    file = asksaveasfile(
+            mode='w', 
+            title='Save Passwords', 
+            filetypes=[('Text Document','*.txt'), ('All Files', '*.*')], 
+            defaultextension='.txt', 
+        )
+
+    if file:
+        content = passwrods
+        file.write(content)
+        file.close()
+
+
+def save_function():
+    generated_passwrods = var.get()
+    if generated_passwrods == '':
+        messagebox.showinfo('Error', 'There is nothing to be saved!')
+        return
+    save_password_function(generated_passwrods)
 
 
 def show_copy_messege():
@@ -162,27 +187,10 @@ def about_function():
         label_guidance_text['text'] = ''
 
 
-def save_password_function(passwrods):
-    file = asksaveasfile(
-            mode='w', 
-            title='Save Passwords', 
-            filetypes=[('Text Document','*.txt'), ('All Files', '*.*')], 
-            defaultextension='.txt', 
-        )
+def close_function():
+    if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        window.destroy()
 
-    if file:
-        content = passwrods
-        file.write(content)
-        file.close()
-
-
-def save_function():
-    generated_passwrods = var.get()
-    if generated_passwrods == '':
-        messagebox.showinfo('Error', 'There is nothing to be saved!')
-        return
-    save_password_function(generated_passwrods)
-        
 
 # Main window
 window = tk.Tk()
@@ -382,18 +390,18 @@ button_generate_password = tk.Button(
     activebackground='yellow',
     anchor='center',
     font=('Noto Sans', 10),
-    command=generate_passowrd_function,
+    command=generate_passowrd_button_function,
 )
 button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 
 
 button_save = tk.Button(
     master=labelframe_buttons, 
-    text='Save Password(s)',
+    text='Save Password',
     font=('Noto Sans', 10),
     command=save_function,
 )
-button_save.grid(row=0, column=0, ipadx=12, ipady=10)
+button_save.grid(row=0, column=0, ipadx=15, ipady=10)
 
 
 button_copy_to_clipboard = tk.Button(
@@ -402,7 +410,7 @@ button_copy_to_clipboard = tk.Button(
     font=('Noto Sans', 10),
     command=copy_to_clipboard_function,
 )
-button_copy_to_clipboard.grid(row=0, column=1, ipadx=12, ipady=10)
+button_copy_to_clipboard.grid(row=0, column=1, ipadx=15, ipady=10)
 
 
 button_clear = tk.Button(
@@ -420,14 +428,14 @@ button_about = tk.Button(
     font=('Noto Sans', 10),
     command=about_function,
 )
-button_about.grid(row=0, column=3, ipadx=23, ipady=10)
+button_about.grid(row=0, column=3, ipadx=25, ipady=10)
 
 
 button_close = tk.Button(
     master=labelframe_buttons, 
     text='Close',
     font=('Noto Sans', 10),
-    command=window.destroy)
+    command=close_function)
 button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 
 
