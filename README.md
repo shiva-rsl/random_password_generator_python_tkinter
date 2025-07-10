@@ -82,9 +82,15 @@ This app offers the following customizable options for generating passwords:
 
 Additional features:
 
-    🎯 Generate 1–100 passwords at a time
+    🎯 Generate secure and random passwords
 
     🔒 Define password length (8–30 characters)
+
+    🔐 Display password entropy
+
+    🛡️ Display password strength level
+
+    📶 Visualize password strength with a progress bar
 
     📋 Copy passwords to clipboard
 
