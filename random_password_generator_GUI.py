@@ -52,35 +52,35 @@ def password_range_calculation():
     'bracket': 8, 
     }
     
-    for _, (key, value) in enumerate(password_option.items()):
+    for key, value in password_option.items():
         if key == 'password_length':
             continue
         if value:
-            password_range += password_option_range_size[key]
-            
+            password_range += password_option_range_size.get(key, 0)
+
     return password_range
 
 
-def password_entropy_calculation(password_length):
-    # E = log2(RL)
+def password_entropy_calculation():
     selection_password = var.get()
-    password_range = password_range_calculation()
     password_length = len(selection_password)
-    entropy_measuremnt = math.log2(password_range ** password_length)
-    return entropy_measuremnt
+    password_range = password_range_calculation()
+    entropy = password_length * math.log2(password_range)
+    return entropy
 
 
 def show_password_entropy():
-    password_entropy_value = password_range_calculation()
-    label_entropy_value['text'] = f'{password_entropy_value} bits'
+    password_entropy_value = password_entropy_calculation()
+    label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
 def generate_passowrd_function():
 
     try: 
-        for _, (text, var) in enumerate(checkbox_options.items()):
-            checkbox_name = re.sub(r"\s\(.*\)", '', text)
-            password_option[checkbox_name.lower()] = var.get()
+        
+        for _, (key, value) in enumerate(checkbox_options.items()):
+            checkbox_name = re.sub(r"\s\(.*\)", '', key)
+            password_option[checkbox_name.lower()] = value.get()
 
         password_option['password_length'] = int(spinbox_password_length.get())
 
@@ -89,7 +89,12 @@ def generate_passowrd_function():
         combobox_generated_password['values'] = passwords
         combobox_generated_password.set(passwords[-1])
 
+        selection_password = var.get()
+        password_length = len(selection_password)
+        print(password_length)
+
         show_password_entropy()
+        
 
     except IndexError:
         error_messagebox_function()
@@ -119,6 +124,7 @@ def clear_function():
     passwords = []
     combobox_generated_password.set('')
     combobox_generated_password['values'] = ()
+    label_entropy_value['text'] = ''
 
 
 def about_function():
