@@ -34,10 +34,50 @@ def get_index(*args):
     print(var.get())
 
 
+def selection_generated_password():
+    return var.trace('w', get_index)
+
+
+def password_range_calculation():
+    password_range = 0
+
+    password_option_range_size = {    
+    'uppercase': 26, 
+    'lowercase': 26, 
+    'digit': 10, 
+    'minus': 1, 
+    'underline': 1, 
+    'space': 1, 
+    'symbol': 19, 
+    'bracket': 8, 
+    }
+    
+    for _, (key, value) in enumerate(password_option.items()):
+        if key == 'password_length':
+            continue
+        if value:
+            password_range += password_option_range_size[key]
+            
+    return password_range
+
+
+def password_entropy_calculation(password_length):
+    # E = log2(RL)
+    selection_password = var.get()
+    password_range = password_range_calculation()
+    password_length = len(selection_password)
+    entropy_measuremnt = math.log2(password_range ** password_length)
+    return entropy_measuremnt
+
+
+def show_password_entropy():
+    password_entropy_value = password_range_calculation()
+    label_entropy_value['text'] = f'{password_entropy_value} bits'
+
+
 def generate_passowrd_function():
 
     try: 
-
         for _, (text, var) in enumerate(checkbox_options.items()):
             checkbox_name = re.sub(r"\s\(.*\)", '', text)
             password_option[checkbox_name.lower()] = var.get()
@@ -48,6 +88,8 @@ def generate_passowrd_function():
         passwords.append(generated_password)
         combobox_generated_password['values'] = passwords
         combobox_generated_password.set(passwords[-1])
+
+        show_password_entropy()
 
     except IndexError:
         error_messagebox_function()
@@ -61,19 +103,22 @@ def show_copy_messege():
 
 def copy_to_clipboard_function():
     
-    generated_passwrods = combobox_generated_password.get('0.0', tk.END).rstrip()
-    
+    generated_passwrods = var.get()
+
     if generated_passwrods == '':
         messagebox.showinfo('Error', 'There is nothing to be copied!')
         return
     
     labelframe_generated_password.clipboard_clear()
-    labelframe_generated_password.clipboard_append(combobox_generated_password.get('1.0', tk.END).rstrip())
+    labelframe_generated_password.clipboard_append(generated_passwrods)
     show_copy_messege()
 
 
 def clear_function():
-    combobox_generated_password.delete(0.0, tk.END)
+    global passwords
+    passwords = []
+    combobox_generated_password.set('')
+    combobox_generated_password['values'] = ()
 
 
 def about_function():
@@ -102,7 +147,7 @@ def save_password_function(passwrods):
 
 
 def save_function():
-    generated_passwrods = combobox_generated_password.get('0.0', tk.END).rstrip()
+    generated_passwrods = var.get()
     if generated_passwrods == '':
         messagebox.showinfo('Error', 'There is nothing to be saved!')
         return
@@ -111,7 +156,7 @@ def save_function():
 
 # Main window
 window = tk.Tk()
-window.geometry('700x850')
+window.geometry('700x840')
 window.resizable(width=False, height=False)
 window.title('Random Password Generator App')
 
@@ -356,6 +401,6 @@ progressbar_generated_password = ttk.Progressbar(
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
 
-var.trace('w', get_index)
-
+selection_generated_password()
+print(password_option)
 window.mainloop()
