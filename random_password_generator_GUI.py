@@ -73,23 +73,24 @@ def strength_password_calculation():
 
     password_entropy = password_entropy_calculation()
     
-    if password_entropy < 41:
+    if password_entropy < 28:
         strength_level = '🔴 Very Weak'
         strength_color = "#f01010"
-    elif password_entropy < 61:
+    elif password_entropy < 36:
         strength_level = '🟠 Weak'
         strength_color = "#ed761c"
-    elif password_entropy < 81:
-        strength_level = '🟡 Moderate'
+    elif password_entropy < 60:
+        strength_level = '🟡 Fair'
         strength_color = "#EFE63E"
-    elif password_entropy < 101:
-        strength_level = '🟢 Strong'
-        strength_color = "#06be06"
+    elif password_entropy < 128:
+        strength_level = '🟣 Strong'
+        strength_color =  "#9b59b6"
     else:
-        strength_level = '🟣 Very Strong'
-        strength_color = "#e52bf2"
+        strength_level = '🟢 Perfect'
+        strength_color = "#06be06"
     
     return strength_level, strength_color
+
 
 
 def show_strength_password():
@@ -111,6 +112,26 @@ def generate_password():
     combobox_generated_password.set(passwords[-1])
 
 
+
+def progressbar_password_strength_function():
+
+    password_strength = password_entropy_calculation()
+
+    progressbar_generated_password['value'] = password_strength
+
+    if password_strength < 28:
+        style.configure('strength.Horizontal.TProgressbar', background="#f01010")
+    elif password_strength < 36:
+        style.configure('strength.Horizontal.TProgressbar', background="#ed761c")
+    elif password_strength < 60:
+        style.configure('strength.Horizontal.TProgressbar', background="#EFE63E")
+    elif password_strength < 128:
+        style.configure('strength.Horizontal.TProgressbar', background="#e52bf2")
+    else:
+        style.configure('strength.Horizontal.TProgressbar', background="#06be06")
+
+
+
 def generate_passowrd_button_function():
 
     try: 
@@ -120,6 +141,8 @@ def generate_passowrd_button_function():
         show_password_entropy()
 
         show_strength_password()
+
+        progressbar_password_strength_function()
         
 
     except IndexError:
@@ -174,6 +197,7 @@ def clear_function():
     combobox_generated_password['values'] = ()
     label_entropy_value['text'] = ''
     label_show_strength['text'] = ''
+    progressbar_generated_password['value'] = 0
 
 
 def about_function():
@@ -230,6 +254,9 @@ labelframe_buttons = tk.LabelFrame(
 )
 labelframe_buttons.grid(row=4, column=0, ipadx=15, ipady=0, padx=(10, 10), pady=(5, 10))
 
+
+# Style
+style = ttk.Style(labelframe_generated_password)
 
 
 # Labels
@@ -440,9 +467,11 @@ button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 
 
 # ProgressBar
+progress_var = tk.DoubleVar()
 progressbar_generated_password = ttk.Progressbar(
     master=labelframe_generated_password,
-    
+    style='strength.Horizontal.TProgressbar',
+    # variable=progress_var,
 )
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
