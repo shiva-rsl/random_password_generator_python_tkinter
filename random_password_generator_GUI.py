@@ -19,19 +19,36 @@ passwords = []
 
 # Functions
 def clear_screen():
+    """
+    Clear the terminal screen.
+    Uses 'cls' command on Windows and 'clear' on Unix-based systems.
+    If the command fails, it prints multiple newlines as a fallback.
+    """
     try:
         os.system('cls' if os.name == 'nt' else 'clear')
     except:
         print('\n' * 100)
+
 clear_screen()
 
 
 def error_messagebox_function():
+    """
+    show an error popup if user has not checked any checkboxes.
+    """
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
 
 
 def password_range_calculation():
-    password_range = 0
+    """
+    Calculate the total size of the character set based on selected password options.
+
+    Args:
+        password_option (dict): Dict with keys like 'uppercase', 'digit', etc.
+
+    Returns:
+        int: Total character set size for entropy calculation.
+    """
 
     password_option_range_size = {    
     'uppercase': 26, 
@@ -44,6 +61,8 @@ def password_range_calculation():
     'bracket': 8, 
     }
     
+    password_range = 0
+
     for key, value in password_option.items():
         if key == 'password_length':
             continue
@@ -168,12 +187,23 @@ def save_password_function(passwrods):
         file.close()
 
 
-def save_function():
-    generated_passwrods = var.get()
-    if generated_passwrods == '':
+def error_messagebox_save_function(password):
+    """
+    Show an error popup if no password is available for saving.
+
+    Returns:
+        bool: True if a password exists, False otherwise.
+    """
+    if not password:
         messagebox.showinfo('Error', 'There is nothing to be saved!')
-        return
-    save_password_function(generated_passwrods)
+        return False
+    return True
+
+
+def save_function():
+    generated_passwrod = var.get()
+    if error_messagebox_save_function(generated_passwrod):
+        save_password_function(generated_passwrod)
 
 
 def show_copy_messege():
