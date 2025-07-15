@@ -117,18 +117,23 @@ def progressbar_password_strength_function():
 
     password_strength = password_entropy_calculation()
 
-    progressbar_generated_password['value'] = password_strength
-
     if password_strength < 28:
+        strength = 10
         style.configure('strength.Horizontal.TProgressbar', background="#f01010")
     elif password_strength < 36:
+        strength = 30
         style.configure('strength.Horizontal.TProgressbar', background="#ed761c")
     elif password_strength < 60:
+        strength = 55
         style.configure('strength.Horizontal.TProgressbar', background="#EFE63E")
     elif password_strength < 128:
+        strength = 80
         style.configure('strength.Horizontal.TProgressbar', background="#e52bf2")
     else:
+        strength = 100
         style.configure('strength.Horizontal.TProgressbar', background="#06be06")
+
+    progressbar_generated_password['value'] = strength
 
 
 
