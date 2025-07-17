@@ -3,14 +3,12 @@ import re
 import math
 import tkinter as tk
 from tkinter import ttk
-from tkinter import E,W,S,N
 from tkinter import messagebox
 from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
 
 
 DEFAULT_PASSWORD_LENGTH = 8
-
 
 checkbox_variables = []
 password_option = {}
@@ -43,9 +41,6 @@ def password_range_calculation():
     """
     Calculate the total size of the character set based on selected password options.
 
-    Args:
-        password_option (dict): Dict with keys like 'uppercase', 'digit', etc.
-
     Returns:
         int: Total character set size for entropy calculation.
     """
@@ -73,6 +68,16 @@ def password_range_calculation():
 
 
 def password_entropy_calculation():
+    """
+    Calculate the entropy of a password based on its length and character diversity.
+
+    The entropy is calculated using the formula: 
+    entropy = length * log2(character_pool_size)
+    where character_pool_size is determined by password_range_calculation().
+
+    Returns:
+        float: The calculated password entropy in bits. A higher value indicates a stronger password.
+    """
     selection_password = var.get()
     password_length = len(selection_password)
     password_range = password_range_calculation()
@@ -81,11 +86,40 @@ def password_entropy_calculation():
 
 
 def show_password_entropy():
+    """
+    Calculate and display the password entropy in the GUI label.
+
+    This function:
+    1. Calls password_entropy_calculation() to compute the entropy
+    2. Formats the result to 2 decimal places
+    3. Updates the text of label_entropy_value with the result
+
+    Side Effects:
+        Modifies the text property of the label_entropy_value widget.
+
+    Returns:
+        None: This function doesn't return anything; it updates the UI directly.
+    """
     password_entropy_value = password_entropy_calculation()
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
 def strength_password_calculation():
+    """
+    Evaluate password strength based on its entropy and return a rating with color coding.
+
+    The strength is categorized into 5 levels according to the calculated entropy:
+    - Very Weak (🔴): < 28 bits
+    - Weak (🟠): 28-35 bits
+    - Fair (🟡): 36-59 bits
+    - Strong (🟣): 60-127 bits
+    - Perfect (🟢): 128+ bits
+
+    Returns:
+        tuple: A tuple containing two elements:
+            - str: Password strength level with emoji indicator
+            - str: Hexadecimal color code corresponding to the strength level
+    """
     
     strength_level = ''
     strength_color = ''
@@ -113,6 +147,21 @@ def strength_password_calculation():
 
 
 def show_strength_password():
+    """
+    Display the password strength rating and its associated color in the GUI.
+
+    This function:
+    1. Retrieves the strength level and color by calling strength_password_calculation()
+    2. Updates the label_show_strength widget with:
+       - Text: The strength level (e.g., "🔴 Very Weak")
+       - Foreground color: The associated color code (e.g., "#f01010")
+
+    Side Effects:
+        Modifies the text and foreground color properties of the label_show_strength widget.
+
+    Returns:
+        None
+    """
     strength_level, strength_color  = strength_password_calculation()
     label_show_strength['text'] = strength_level
     label_show_strength['fg'] = strength_color
@@ -226,6 +275,19 @@ def copy_to_clipboard_function():
 
 
 def clear_function():
+    """
+    Reset all password-related GUI elements to their default empty state.
+
+    This function:
+    1. Clears the global passwords list
+    2. Resets the password combobox (current selection and dropdown values)
+    3. Clears the entropy value display
+    4. Resets the strength indicator text
+    5. Sets the progress bar to 0
+
+    Returns:
+        None
+    """
     global passwords
     passwords = []
     combobox_generated_password.set('')
@@ -236,6 +298,18 @@ def clear_function():
 
 
 def about_function():
+    """
+    Display or toggle the application description in the guidance text label.
+
+    This function:
+    1. Shows an informational paragraph about the password generator app
+    2. Sets the text color to black
+    3. Toggles the text display (shows if empty, hides if already showing)
+
+    Returns:
+        None
+    """
+
     text = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters.'''
@@ -247,6 +321,18 @@ def about_function():
 
 
 def close_function():
+    """
+    Display a confirmation dialog and close the application if user confirms.
+
+    This function:
+    1. Displays a modal dialog with "OK" and "Cancel" buttons
+    2. Asks the user to confirm quitting the application
+    3. If user confirms ("OK"), terminates the application by destroying the main window
+    4. If user cancels, returns without taking any action
+
+    Returns:
+        None
+    """
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
         window.destroy()
 
