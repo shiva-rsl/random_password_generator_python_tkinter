@@ -8,8 +8,6 @@ from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
 
 
-DEFAULT_PASSWORD_LENGTH = 8
-
 checkbox_variables = []
 password_option = {}
 passwords = []
@@ -35,6 +33,59 @@ def error_messagebox_function():
     show an error popup if user has not checked any checkboxes.
     """
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
+
+
+def password_length_from_user():
+    try:
+        password_length = int(spinbox_password_length.get())
+    except ValueError:
+        return
+    password_option['password_length'] = password_length
+
+
+def show_invalid_password_length_message() -> None:
+    """
+    Dispaly an error popup if the password length is not valid.
+    """
+    messagebox.showinfo(
+        'Error', 
+        f'Password length must be between {MIN_PASSWORD_LENGTH} and {MAX_PASSWORD_LENGTH} charcters.'
+    )
+
+
+def is_valid_password_length(password_length: int) -> bool:
+    """
+    Check if the password length is valid (between 8 and 30).
+
+    Args:
+        password_length (int): The length to validate.
+
+    Returns:
+        bool: True if valid, otherwise False.
+    """
+    return MIN_PASSWORD_LENGTH <= password_length <= MAX_PASSWORD_LENGTH
+
+
+
+def set_password_length(password_length: int) -> None:
+    """
+    Set the password length in the password option dictionary if valid.
+    Show an error message if invalid.
+
+    Args:
+        password_length (int): The length to set.
+
+    Side Effects:
+        Update global password_option if valid.
+        Shows an error message if invalid.
+
+    Returns:
+        None
+    """
+    if is_valid_password_length(password_length):
+        password_option['password_length'] = password_length
+    else:
+        show_invalid_password_length_message()
 
 
 def password_range_calculation():
@@ -167,15 +218,19 @@ def show_strength_password():
     label_show_strength['fg'] = strength_color
 
 
-def generate_password():
+def password_options_from_user():
     for _, (key, value) in enumerate(checkbox_options.items()):
         checkbox_name = re.sub(r'\s\(.*\)', '', key)
         password_option[checkbox_name.lower()] = value.get()
 
-    password_option['password_length'] = int(spinbox_password_length.get())
 
+
+def generate_password():
     generated_password = random_password_generator(password_option)
     passwords.append(generated_password)
+
+
+def show_generated_password_in_combobox():
     combobox_generated_password['values'] = passwords
     combobox_generated_password.set(passwords[-1])
 
@@ -206,10 +261,16 @@ def progressbar_password_strength_function():
 
 
 def generate_passowrd_button_function():
+    password_length_user = int(spinbox_password_length.get())
 
     try: 
-        
+        set_password_length(password_length_user)
+
+        password_options_from_user()
+
         generate_password()
+        
+        show_generated_password_in_combobox()
         
         show_password_entropy()
 
