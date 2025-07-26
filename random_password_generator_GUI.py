@@ -341,7 +341,7 @@ def copy_to_clipboard_function():
     show_copy_messege()
 
 
-def clear_function():
+def reset_password_ui():
     """
     Reset all password-related GUI elements to their default empty state.
 
@@ -356,7 +356,7 @@ def clear_function():
         None
     """
     global passwords
-    passwords = []
+    passwords.clear()
     combobox_generated_password.set('')
     combobox_generated_password['values'] = ()
     label_entropy_value['text'] = ''
@@ -364,7 +364,7 @@ def clear_function():
     progressbar_generated_password['value'] = 0
 
 
-def display_about_info():
+def toggle_about_text():
     """
     Display or toggle the application description in the guidance text label.
 
@@ -626,7 +626,7 @@ button_clear = tk.Button(
     master=labelframe_buttons, 
     text='Clear',
     font=('Noto Sans', 10),
-    command=clear_function,
+    command=reset_password_ui,
 )
 button_clear.grid(row=0, column=2, ipadx=25, ipady=10)
 
@@ -635,7 +635,7 @@ button_about = tk.Button(
     master=labelframe_buttons, 
     text='About',
     font=('Noto Sans', 10),
-    command=display_about_info,
+    command=toggle_about_text,
 )
 button_about.grid(row=0, column=3, ipadx=25, ipady=10)
 
