@@ -8,6 +8,12 @@ from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
 
 
+DEFAULT_TEXT_COLOR = "#000000"
+ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
+    unpredictable passwords through an optional mix of lowercase and uppercase letters,
+    numbers and special characters.'''
+
+
 checkbox_variables = []
 password_option = {}
 passwords = []
@@ -358,27 +364,21 @@ def clear_function():
     progressbar_generated_password['value'] = 0
 
 
-def about_function():
+def display_about_info():
     """
     Display or toggle the application description in the guidance text label.
 
     This function:
-    1. Shows an informational paragraph about the password generator app
-    2. Sets the text color to black
-    3. Toggles the text display (shows if empty, hides if already showing)
-
+    1. Shows ABOUT_TEXT in black if the label is empty
+    2. Clears the Label if it already contains text
+    
     Returns:
         None
     """
-
-    text = '''The Random Password Generator enables you to generate secure and highly
-    unpredictable passwords through an optional mix of lowercase and uppercase letters,
-    numbers and special characters.'''
-    if label_guidance_text['text'] == '':
-        label_guidance_text['text'] = text
-        label_guidance_text['fg'] = 'black'
+    if not label_guidance_text['text'].strip():
+        label_guidance_text.config(text=ABOUT_TEXT, fg=DEFAULT_TEXT_COLOR)
     else:
-        label_guidance_text['text'] = ''
+        label_guidance_text.config(text='')
 
 
 def close_function():
@@ -635,7 +635,7 @@ button_about = tk.Button(
     master=labelframe_buttons, 
     text='About',
     font=('Noto Sans', 10),
-    command=about_function,
+    command=display_about_info,
 )
 button_about.grid(row=0, column=3, ipadx=25, ipady=10)
 
