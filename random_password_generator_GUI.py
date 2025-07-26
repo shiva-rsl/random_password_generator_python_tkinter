@@ -20,7 +20,7 @@ passwords = []
 
 
 # Functions
-def clear_screen():
+def clear_screen() -> None:
     """
     Clear the terminal screen.
     Uses 'cls' command on Windows and 'clear' on Unix-based systems.
@@ -34,14 +34,14 @@ def clear_screen():
 clear_screen()
 
 
-def error_messagebox_function():
+def error_messagebox_function() -> None:
     """
     show an error popup if user has not checked any checkboxes.
     """
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
 
 
-def password_length_from_user():
+def password_length_from_user() -> None:
     try:
         password_length = int(spinbox_password_length.get())
     except ValueError:
@@ -94,7 +94,7 @@ def set_password_length(password_length: int) -> None:
         show_invalid_password_length_message()
 
 
-def password_range_calculation():
+def password_range_calculation() -> int:
     """
     Calculate the total size of the character set based on selected password options.
 
@@ -124,7 +124,7 @@ def password_range_calculation():
     return password_range
 
 
-def password_entropy_calculation():
+def password_entropy_calculation() -> float:
     """
     Calculate the entropy of a password based on its length and character diversity.
 
@@ -142,7 +142,7 @@ def password_entropy_calculation():
     return entropy
 
 
-def show_password_entropy():
+def show_password_entropy() -> None:
     """
     Calculate and display the password entropy in the GUI label.
 
@@ -161,7 +161,7 @@ def show_password_entropy():
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
-def strength_password_calculation():
+def strength_password_calculation() -> str:
     """
     Evaluate password strength based on its entropy and return a rating with color coding.
 
@@ -203,7 +203,7 @@ def strength_password_calculation():
 
 
 
-def show_strength_password():
+def show_strength_password() -> None:
     """
     Display the password strength rating and its associated color in the GUI.
 
@@ -224,25 +224,25 @@ def show_strength_password():
     label_show_strength['fg'] = strength_color
 
 
-def password_options_from_user():
+def password_options_from_user() -> None:
     for _, (key, value) in enumerate(checkbox_options.items()):
         checkbox_name = re.sub(r'\s\(.*\)', '', key)
         password_option[checkbox_name.lower()] = value.get()
 
 
 
-def generate_password():
+def generate_password() -> None:
     generated_password = random_password_generator(password_option)
     passwords.append(generated_password)
 
 
-def show_generated_password_in_combobox():
+def show_generated_password_in_combobox() -> None:
     combobox_generated_password['values'] = passwords
     combobox_generated_password.set(passwords[-1])
 
 
 
-def progressbar_password_strength_function():
+def progressbar_password_strength_function() -> None:
 
     password_strength = password_entropy_calculation()
 
@@ -266,7 +266,7 @@ def progressbar_password_strength_function():
 
 
 
-def generate_passowrd_button_function():
+def generate_passowrd_button_function() -> None:
     password_length_user = int(spinbox_password_length.get())
 
     try: 
@@ -289,7 +289,17 @@ def generate_passowrd_button_function():
         error_messagebox_function()
 
 
-def save_password_function(passwrods):
+def save_password_to_file(password: str) -> None:
+    """
+    Prompt the user with a file save dialog and write the given password to the selected file.
+    
+    Args:
+        password (str): The password to save.
+
+    Returns:
+        None
+    """
+
     file = asksaveasfile(
             mode='w', 
             title='Save Passwords', 
@@ -298,14 +308,18 @@ def save_password_function(passwrods):
         )
 
     if file:
-        content = passwrods
-        file.write(content)
-        file.close()
+        try:
+            file.write(password)
+        finally:
+            file.close()
 
 
-def error_messagebox_save_function(password):
+def validate_password_for_saving(password: str) -> bool:
     """
-    Show an error popup if no password is available for saving.
+    Validate if a password is available for saving.
+    
+    Args:
+        generated password (str): The password to validate.
 
     Returns:
         bool: True if a password exists, False otherwise.
@@ -316,32 +330,75 @@ def error_messagebox_save_function(password):
     return True
 
 
-def save_function():
-    generated_passwrod = var.get()
-    if error_messagebox_save_function(generated_passwrod):
-        save_password_function(generated_passwrod)
+def handle_save_password() -> None:
+    """
+    Validate and save the generated password to a user-specified file.
+    
+    Side Effects:
+        Shows error popup if no password is availabel.
+        Opens a file dialog for saving the password.
+
+    Return:
+        None
+    """
+    generated_password = var.get()
+    if validate_password_for_saving(generated_password):
+        save_password_to_file(generate_password)
+    
+        
+def check_and_show_copy_error(generated_password: str) -> bool:
+    """
+    Check if the generated password is empty. if so, show an error messagebox.
+    
+    Args:
+        generated_password (str): The password string to check.
+
+    Returns:
+        bool: True if an error was shown, False otherwise.
+    """
+    if not generated_password:
+        messagebox.showinfo('Error', 'There is nothing to be copied!')
+        return True
+    return False
 
 
-def show_copy_messege():
-    label_guidance_text['text'] = 'Password copied!'
-    label_guidance_text['fg'] = 'green' 
+def show_copy_message() -> None:
+    """
+    Display a confirmation message 'Password copied!' in label_guidance_text,
+    then clear the message after 2 seconds.
+
+    Returns:
+        None
+    """
+    label_guidance_text.config(text='Password copied!', fg="#066A10")
     window.after(2000, lambda: label_guidance_text.config(text=''))
 
 
-def copy_to_clipboard_function():
-    
-    generated_passwrods = var.get()
+def copy_to_clipboard_function() -> None:
+    """
+    Copy the generated password to clipboard.
+    Show an error if password is empty.
 
-    if generated_passwrods == '':
-        messagebox.showinfo('Error', 'There is nothing to be copied!')
+    Side Effects:
+        Display an error popup if the password is empty.
+        Copies the password to the system clipboard.
+        Update the guidance label to show a confirmation message.
+
+    Returns:
+        None
+    """
+    generated_password = var.get()
+
+    if check_and_show_copy_error(generated_password):
         return
     
     labelframe_generated_password.clipboard_clear()
-    labelframe_generated_password.clipboard_append(generated_passwrods)
-    show_copy_messege()
+    labelframe_generated_password.clipboard_append(generated_password)
+    
+    show_copy_message()
 
 
-def reset_password_ui():
+def reset_password_ui() -> None:
     """
     Reset all password-related GUI elements to their default empty state.
 
@@ -364,7 +421,7 @@ def reset_password_ui():
     progressbar_generated_password['value'] = 0
 
 
-def toggle_about_text():
+def toggle_about_text() -> None:
     """
     Display or toggle the application description in the guidance text label.
 
@@ -381,7 +438,7 @@ def toggle_about_text():
         label_guidance_text.config(text='')
 
 
-def close_function():
+def close_function() -> None:
     """
     Display a confirmation dialog and close the application if user confirms.
 
@@ -608,7 +665,7 @@ button_save = tk.Button(
     master=labelframe_buttons, 
     text='Save Password',
     font=('Noto Sans', 10),
-    command=save_function,
+    command=handle_save_password,
 )
 button_save.grid(row=0, column=0, ipadx=15, ipady=10)
 
