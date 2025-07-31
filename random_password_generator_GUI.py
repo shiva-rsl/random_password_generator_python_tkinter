@@ -141,18 +141,15 @@ def password_entropy_calculation() -> float:
     entropy = password_length * math.log2(password_range)
     return entropy
 
-
+# F
 def show_password_entropy() -> None:
     """
     Calculate and display the password entropy in the GUI label.
 
-    This function:
-    1. Calls password_entropy_calculation() to compute the entropy
-    2. Formats the result to 2 decimal places
-    3. Updates the text of label_entropy_value with the result
-
     Side Effects:
-        Modifies the text property of the label_entropy_value widget.
+        - Calls password_entropy_calculation() to compute the entropy
+        - Formats the result to 2 decimal places
+        - Updates the text of label_entropy_value with the result
 
     Returns:
         None: This function doesn't return anything; it updates the UI directly.
@@ -202,19 +199,16 @@ def strength_password_calculation() -> str:
     return strength_level, strength_color
 
 
-
+# F
 def show_strength_password() -> None:
     """
     Display the password strength rating and its associated color in the GUI.
 
-    This function:
+    Side Effects:
     1. Retrieves the strength level and color by calling strength_password_calculation()
     2. Updates the label_show_strength widget with:
        - Text: The strength level (e.g., "🔴 Very Weak")
        - Foreground color: The associated color code (e.g., "#f01010")
-
-    Side Effects:
-        Modifies the text and foreground color properties of the label_show_strength widget.
 
     Returns:
         None
@@ -241,29 +235,58 @@ def show_generated_password_in_combobox() -> None:
     combobox_generated_password.set(passwords[-1])
 
 
-
-def progressbar_password_strength_function() -> None:
-
+def calculate_password_strength():
     password_strength = password_entropy_calculation()
 
     if password_strength < 28:
         strength = 10
-        style.configure('strength.Horizontal.TProgressbar', background="#f01010")
+        color = "#f01010"   # Very weak - red
     elif password_strength < 36:
         strength = 30
-        style.configure('strength.Horizontal.TProgressbar', background="#ed761c")
+        color = "#ed761c"   # Weak - orange
     elif password_strength < 60:
         strength = 55
-        style.configure('strength.Horizontal.TProgressbar', background="#EFE63E")
+        color = "#EFE63E"   # Fair - yellow
     elif password_strength < 128:
         strength = 80
-        style.configure('strength.Horizontal.TProgressbar', background="#e52bf2")
+        color = "#e52bf2"   # Strong - purple
     else:
         strength = 100
-        style.configure('strength.Horizontal.TProgressbar', background="#06be06")
+        color = "#06be06"   # Very strong - green
+    return strength, color
 
+
+def update_password_strength_progressbar() -> None:
+    """
+    Update the password strength progress bar's value and color based on password entropy.
+    
+    Side Effects:
+        - Calculates password entropy by using `password_entropy_calculation()`.
+        - Update the progress bar value and color to visially represent password strength.
+        
+    Returns:
+        None
+    """
+    password_strength = password_entropy_calculation()
+
+    if password_strength < 28:
+        strength = 10
+        color = "#f01010"   # Very weak - red
+    elif password_strength < 36:
+        strength = 30
+        color = "#ed761c"   # Weak - orange
+    elif password_strength < 60:
+        strength = 55
+        color = "#EFE63E"   # Fair - yellow
+    elif password_strength < 128:
+        strength = 80
+        color = "#e52bf2"   # Strong - purple
+    else:
+        strength = 100
+        color = "#06be06"   # Very strong - green
+    
+    style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password['value'] = strength
-
 
 
 def generate_passowrd_button_function() -> None:
@@ -282,19 +305,23 @@ def generate_passowrd_button_function() -> None:
 
         show_strength_password()
 
-        progressbar_password_strength_function()
+        update_password_strength_progressbar()
         
 
     except IndexError:
         error_messagebox_function()
 
-
+# F
 def save_password_to_file(password: str) -> None:
     """
-    Prompt the user with a file save dialog and write the given password to the selected file.
+    Prompt the user with a file save dialog and write the given password.
     
     Args:
         password (str): The password to save.
+
+    Side Effects:
+        - Opens a file dialog to select the save location.
+        - Writes the password content to the selected file.
 
     Returns:
         None
@@ -313,13 +340,16 @@ def save_password_to_file(password: str) -> None:
         finally:
             file.close()
 
-
-def validate_password_for_saving(password: str) -> bool:
+# F
+def show_save_error_if_empty(password: str) -> bool:
     """
     Validate if a password is available for saving.
     
     Args:
-        generated password (str): The password to validate.
+        password (str): The password to validate.
+
+    Side Effects:
+        Shows a messagebox if the password is empty.
 
     Returns:
         bool: True if a password exists, False otherwise.
@@ -329,7 +359,7 @@ def validate_password_for_saving(password: str) -> bool:
         return False
     return True
 
-
+# F
 def handle_save_password() -> None:
     """
     Validate and save the generated password to a user-specified file.
@@ -342,16 +372,19 @@ def handle_save_password() -> None:
         None
     """
     generated_password = var.get()
-    if validate_password_for_saving(generated_password):
+    if show_save_error_if_empty(generated_password):
         save_password_to_file(generate_password)
     
-        
-def check_and_show_copy_error(generated_password: str) -> bool:
+#F 
+def show_copy_error_if_empty(generated_password: str) -> bool:
     """
     Check if the generated password is empty. if so, show an error messagebox.
     
     Args:
         generated_password (str): The password string to check.
+
+    Side Effects:
+        Displays a messagebox if the password is empty.
 
     Returns:
         bool: True if an error was shown, False otherwise.
@@ -361,35 +394,42 @@ def check_and_show_copy_error(generated_password: str) -> bool:
         return True
     return False
 
-
+# F
 def show_copy_message() -> None:
     """
     Display a confirmation message 'Password copied!' in label_guidance_text,
     then clear the message after 2 seconds.
 
+    Side Effects:
+        - Modifies the label text of `label_guidance_text`.
+        - Uses `after()` to clear it after 2 seconds.
+
     Returns:
         None
     """
-    label_guidance_text.config(text='Password copied!', fg="#066A10")
+    label_guidance_text.config(
+        text='Password copied!', 
+        fg="#066A10"
+    )
     window.after(2000, lambda: label_guidance_text.config(text=''))
 
-
+# F
 def copy_to_clipboard_function() -> None:
     """
     Copy the generated password to clipboard.
     Show an error if password is empty.
 
     Side Effects:
-        Display an error popup if the password is empty.
-        Copies the password to the system clipboard.
-        Update the guidance label to show a confirmation message.
+        - Display an error popup if the password is empty.
+        - Copies the password to the system clipboard.
+        - Update the guidance label to show a confirmation message.
 
     Returns:
         None
     """
     generated_password = var.get()
 
-    if check_and_show_copy_error(generated_password):
+    if show_copy_error_if_empty(generated_password):
         return
     
     labelframe_generated_password.clipboard_clear()
@@ -397,17 +437,17 @@ def copy_to_clipboard_function() -> None:
     
     show_copy_message()
 
-
+# F
 def reset_password_ui() -> None:
     """
     Reset all password-related GUI elements to their default empty state.
 
-    This function:
-    1. Clears the global passwords list
-    2. Resets the password combobox (current selection and dropdown values)
-    3. Clears the entropy value display
-    4. Resets the strength indicator text
-    5. Sets the progress bar to 0
+    Side Effects:
+        - Clears the global passwords list
+        - Resets the password combobox (current selection and dropdown values)
+        - Clears the entropy value display
+        - Resets the strength indicator text
+        - Sets the progress bar to 0
 
     Returns:
         None
@@ -420,14 +460,14 @@ def reset_password_ui() -> None:
     label_show_strength['text'] = ''
     progressbar_generated_password['value'] = 0
 
-
+# F
 def toggle_about_text() -> None:
     """
     Display or toggle the application description in the guidance text label.
 
-    This function:
-    1. Shows ABOUT_TEXT in black if the label is empty
-    2. Clears the Label if it already contains text
+    Side Effects:
+        - Shows ABOUT_TEXT in black if the label is empty
+        - Clears the Label if it already contains text
     
     Returns:
         None
@@ -437,16 +477,16 @@ def toggle_about_text() -> None:
     else:
         label_guidance_text.config(text='')
 
-
+# F
 def close_function() -> None:
     """
     Display a confirmation dialog and close the application if user confirms.
 
-    This function:
-    1. Displays a modal dialog with "OK" and "Cancel" buttons
-    2. Asks the user to confirm quitting the application
-    3. If user confirms ("OK"), terminates the application by destroying the main window
-    4. If user cancels, returns without taking any action
+    Side Effects:
+        - Displays a modal dialog with "OK" and "Cancel" buttons
+        - Asks the user to confirm quitting the application
+        - If user confirms ("OK"), terminates the application by destroying the main window
+        - If user cancels, returns without taking any action
 
     Returns:
         None
