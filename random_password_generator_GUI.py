@@ -234,56 +234,44 @@ def show_generated_password_in_combobox() -> None:
     combobox_generated_password['values'] = passwords
     combobox_generated_password.set(passwords[-1])
 
+# F
+def password_strength_calculation(entropy: float) -> tuple[int, str]:
+    """
+    Calculate the password strength score and corresponding color based on entropy.
 
-def calculate_password_strength():
-    password_strength = password_entropy_calculation()
+    Args:
+        entropy (float): The entropy value of the password.
 
-    if password_strength < 28:
-        strength = 10
-        color = "#f01010"   # Very weak - red
-    elif password_strength < 36:
-        strength = 30
-        color = "#ed761c"   # Weak - orange
-    elif password_strength < 60:
-        strength = 55
-        color = "#EFE63E"   # Fair - yellow
-    elif password_strength < 128:
-        strength = 80
-        color = "#e52bf2"   # Strong - purple
+    Returns:
+        tuple[int, str]: A tuple containing the strength score (as an integer) 
+        and the associated color code (as a hex string).
+    """
+
+    if entropy < 28:
+        return 10, "#f01010"
+    elif entropy < 36:
+        return 30, "#ed761c"
+    elif entropy < 60:
+        return 55, "#EFE63E"
+    elif entropy < 128:
+        return 80, "#e52bf2"
     else:
-        strength = 100
-        color = "#06be06"   # Very strong - green
-    return strength, color
-
-
+        return 100, "#06be06"
+    
+# F
 def update_password_strength_progressbar() -> None:
     """
     Update the password strength progress bar's value and color based on password entropy.
     
     Side Effects:
-        - Calculates password entropy by using `password_entropy_calculation()`.
-        - Update the progress bar value and color to visially represent password strength.
+        - Calls `password_entropy_calculation()` to compute the entropy of the current password.
+        - Update the progress bar value and color to visually reflect password strength.
         
     Returns:
         None
     """
-    password_strength = password_entropy_calculation()
-
-    if password_strength < 28:
-        strength = 10
-        color = "#f01010"   # Very weak - red
-    elif password_strength < 36:
-        strength = 30
-        color = "#ed761c"   # Weak - orange
-    elif password_strength < 60:
-        strength = 55
-        color = "#EFE63E"   # Fair - yellow
-    elif password_strength < 128:
-        strength = 80
-        color = "#e52bf2"   # Strong - purple
-    else:
-        strength = 100
-        color = "#06be06"   # Very strong - green
+    entropy = password_entropy_calculation()
+    strength, color = password_strength_calculation(entropy)
     
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password['value'] = strength
