@@ -12,11 +12,17 @@ DEFAULT_TEXT_COLOR = "#000000"
 ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters.'''
-
+STRENGTH_COLORS = {
+    'very_weak': "#f01010",
+    'weak': "#ed761c",
+    'fair': "#EFE63E",
+    'strong': "#e52bf2",
+    'perfect': "#06be06"
+}
 
 checkbox_variables = []
 password_option = {}
-passwords = []
+password_list = []
 
 
 # Functions
@@ -182,19 +188,19 @@ def strength_password_calculation() -> str:
     
     if password_entropy < 28:
         strength_level = '🔴 Very Weak'
-        strength_color = "#f01010"
+        strength_color = STRENGTH_COLORS['very weak']
     elif password_entropy < 36:
         strength_level = '🟠 Weak'
-        strength_color = "#ed761c"
+        strength_color = STRENGTH_COLORS['weak']
     elif password_entropy < 60:
         strength_level = '🟡 Fair'
-        strength_color = "#EFE63E"
+        strength_color = STRENGTH_COLORS['fair']
     elif password_entropy < 128:
         strength_level = '🟣 Strong'
-        strength_color =  "#9b59b6"
+        strength_color =  STRENGTH_COLORS['strong']
     else:
         strength_level = '🟢 Perfect'
-        strength_color = "#06be06"
+        strength_color = STRENGTH_COLORS['perfect']
     
     return strength_level, strength_color
 
@@ -226,13 +232,23 @@ def password_options_from_user() -> None:
 
 
 def generate_password() -> None:
+    """
+    Generate a random password based on the options selected by the user.
+
+    Side Effects:
+        - Calls the `random_password_generator()` to generate password.
+        - Appends the generated password to the global `password` list.
+
+    Returns:
+        None
+    """
     generated_password = random_password_generator(password_option)
-    passwords.append(generated_password)
+    password_list.append(generated_password)
 
 
 def show_generated_password_in_combobox() -> None:
-    combobox_generated_password['values'] = passwords
-    combobox_generated_password.set(passwords[-1])
+    combobox_generated_password['values'] = password_list
+    combobox_generated_password.set(password_list[-1])
 
 # F
 def password_strength_calculation(entropy: float) -> tuple[int, str]:
@@ -248,16 +264,16 @@ def password_strength_calculation(entropy: float) -> tuple[int, str]:
     """
 
     if entropy < 28:
-        return 10, "#f01010"
+        return 10, STRENGTH_COLORS['very weak']
     elif entropy < 36:
-        return 30, "#ed761c"
+        return 30, STRENGTH_COLORS['weak']
     elif entropy < 60:
-        return 55, "#EFE63E"
+        return 55, STRENGTH_COLORS['fair']
     elif entropy < 128:
-        return 80, "#e52bf2"
+        return 80, STRENGTH_COLORS['strong']
     else:
-        return 100, "#06be06"
-    
+        return 100, STRENGTH_COLORS['perfect']
+
 # F
 def update_password_strength_progressbar() -> None:
     """
@@ -628,7 +644,7 @@ combobox_generated_password = ttk.Combobox(
     master=labelframe_generated_password,
     width=28,
     font=('Noto Sans', 15),
-    values=passwords,
+    values=password_list,
     textvariable=var
 )
 combobox_generated_password.grid(row=0, column=1, padx=5)
