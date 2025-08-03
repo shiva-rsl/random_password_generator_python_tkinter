@@ -157,35 +157,38 @@ def show_password_entropy() -> None:
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
-def strength_password_calculation() -> tuple[str, str]:
+def evaluate_password_strength(password_entropy: float) -> dict:
     """
-    Evaluates password strength based on its entropy and returns a rating with color coding.
+    Evaluates the strength of a password based on its entropy.
 
-    The strength is categorized into 5 levels according to the calculated entropy:
-    - Very Weak (🔴): < 28 bits
-    - Weak (🟠): 28-35 bits
-    - Fair (🟡): 36-59 bits
-    - Strong (🟣): 60-127 bits
-    - Perfect (🟢): 128+ bits
+    Args:
+        `password_entropy` (float): The entropy value of the password.
 
     Returns:
-        tuple: A tuple containing two elements:
-            - str: Password strength level with emoji indicator
-            - str: Hexadecimal color code corresponding to the strength level
+        dict: A dictionary containing the score, label and color representing the strength.
     """
-
-    password_entropy = calculate_password_entropy()
-    
     if password_entropy < 28:
-        return '🔴 Very Weak', STRENGTH_COLORS['very weak']
+        return {'score': 10, 'label': '🔴 Very Weak', 'color': STRENGTH_COLORS['very_weak']}
     elif password_entropy < 36:
-        return '🟠 Weak', STRENGTH_COLORS['weak']
+        return {'score': 30, 'label': '🟠 Weak', 'color': STRENGTH_COLORS['weak']}
     elif password_entropy < 60:
-        return '🟡 Fair', STRENGTH_COLORS['fair']
+        return {'score': 55, 'label': '🟡 Fair', 'color': STRENGTH_COLORS['fair']}
     elif password_entropy < 128:
-        return '🟣 Strong', STRENGTH_COLORS['strong']
+        return {'score': 80, 'label': '🟣 Strong', 'color': STRENGTH_COLORS['strong']}
     else:
-        return '🟢 Perfect', STRENGTH_COLORS['perfect']
+        return {'score': 100, 'label': '🟢 Perfect', 'color': STRENGTH_COLORS['perfect']}
+
+
+def calculate_password_strength() -> tuple[int, str, str]:
+    """
+    Calculates the strength of a password.
+
+    Returns:
+        tuple: A tuple containing the `score` (int), `label` (str) and `color` (str) representing the password strength.
+    """
+    password_entropy = calculate_password_entropy()
+    strength_date = evaluate_password_strength(password_entropy)
+    return strength_date['score'], strength_date['label'], strength_date['color']
 
 
 def show_password_strength() -> None:
@@ -193,7 +196,7 @@ def show_password_strength() -> None:
     Displays the password strength rating and its associated color in the GUI.
 
     Side Effects:
-    1. Retrieves the strength level and color by calling `strength_password_calculation()`
+    1. Retrieves the strength level and color by calling `calculate_password_strength()`
     2. Updates the `label_show_strength` widget with:
        - Text: The strength level (e.g., "🔴 Very Weak")
        - Foreground color: The associated color code (e.g., "#f01010")
@@ -201,7 +204,7 @@ def show_password_strength() -> None:
     Returns:
         None
     """
-    strength_level, strength_color  = strength_password_calculation()
+    _, strength_level, strength_color  = calculate_password_strength()
     label_show_strength['text'] = strength_level
     label_show_strength['fg'] = strength_color
 
@@ -252,30 +255,6 @@ def show_generated_password_in_combobox() -> None:
     combobox_generated_password.set(password_list[-1])
 
 
-def password_strength_calculation(entropy: float) -> tuple[int, str]:
-    """
-    Calculates the password strength score and corresponding color based on entropy.
-
-    Args:
-        entropy (float): The entropy value of the password.
-
-    Returns:
-        tuple[int, str]: A tuple containing the strength score (as an integer) 
-        and the associated color code (as a hex string).
-    """
-
-    if entropy < 28:
-        return 10, STRENGTH_COLORS['very weak']
-    elif entropy < 36:
-        return 30, STRENGTH_COLORS['weak']
-    elif entropy < 60:
-        return 55, STRENGTH_COLORS['fair']
-    elif entropy < 128:
-        return 80, STRENGTH_COLORS['strong']
-    else:
-        return 100, STRENGTH_COLORS['perfect']
-
-
 def update_password_strength_progressbar() -> None:
     """
     Updates the password strength progress bar's value and color based on password entropy.
@@ -288,7 +267,7 @@ def update_password_strength_progressbar() -> None:
         None
     """
     entropy = calculate_password_entropy()
-    strength, color = password_strength_calculation(entropy)
+    strength, _, color = calculate_password_strength()
     
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password['value'] = strength
