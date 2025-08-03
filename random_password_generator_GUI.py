@@ -19,6 +19,17 @@ STRENGTH_COLORS = {
     'strong': "#e52bf2",
     'perfect': "#06be06"
 }
+PASSWORD_OPTION_RANGE_SIZE = {    
+    'uppercase': 26, 
+    'lowercase': 26, 
+    'digit': 10, 
+    'minus': 1, 
+    'underline': 1, 
+    'space': 1, 
+    'symbol': 19, 
+    'bracket': 8, 
+}
+
 
 checkbox_variables = []
 password_option = {}
@@ -26,51 +37,45 @@ password_list = []
 
 
 # Functions
+
 def clear_screen() -> None:
     """
-    Clear the terminal screen.
+    Clears the terminal screen.
+
     Uses 'cls' command on Windows and 'clear' on Unix-based systems.
     If the command fails, it prints multiple newlines as a fallback.
     """
     try:
         os.system('cls' if os.name == 'nt' else 'clear')
-    except:
+    except Exception:
         print('\n' * 100)
 
 clear_screen()
 
 
-def error_messagebox_function() -> None:
+def show_checkbox_error_message() -> None:
     """
-    show an error popup if user has not checked any checkboxes.
+    shows an error popup if user has not checked any checkboxes.
     """
     messagebox.showinfo('Error', 'Please check at lease one checkbox to proceed.')
 
 
-def password_length_from_user() -> None:
-    try:
-        password_length = int(spinbox_password_length.get())
-    except ValueError:
-        return
-    password_option['password_length'] = password_length
-
-
 def show_invalid_password_length_message() -> None:
     """
-    Dispaly an error popup if the password length is not valid.
+    Displays an error popup if the password length is not valid.
     """
     messagebox.showinfo(
         'Error', 
-        f'Password length must be between {MIN_PASSWORD_LENGTH} and {MAX_PASSWORD_LENGTH} charcters.'
+        f'Password length must be between {MIN_PASSWORD_LENGTH} and {MAX_PASSWORD_LENGTH} characters.'
     )
 
 
 def is_valid_password_length(password_length: int) -> bool:
     """
-    Check if the password length is valid (between 8 and 30).
+    Checks if the password length is valid (between 8 and 30).
 
     Args:
-        password_length (int): The length to validate.
+        `password_length` (int): The length to validate.
 
     Returns:
         bool: True if valid, otherwise False.
@@ -78,17 +83,16 @@ def is_valid_password_length(password_length: int) -> bool:
     return MIN_PASSWORD_LENGTH <= password_length <= MAX_PASSWORD_LENGTH
 
 
-
 def set_password_length(password_length: int) -> None:
     """
-    Set the password length in the password option dictionary if valid.
-    Show an error message if invalid.
+    Sets the password length in the `password_option` dictionary if valid.
+    Shows an error message if invalid.
 
     Args:
-        password_length (int): The length to set.
+        `password_length` (int): The length to set.
 
     Side Effects:
-        Update global password_option if valid.
+        Updates global `password_option` if valid.
         Shows an error message if invalid.
 
     Returns:
@@ -100,24 +104,14 @@ def set_password_length(password_length: int) -> None:
         show_invalid_password_length_message()
 
 
+
 def password_range_calculation() -> int:
     """
-    Calculate the total size of the character set based on selected password options.
+    Calculates the total size of the character set based on selected password options.
 
     Returns:
         int: Total character set size for entropy calculation.
     """
-
-    password_option_range_size = {    
-    'uppercase': 26, 
-    'lowercase': 26, 
-    'digit': 10, 
-    'minus': 1, 
-    'underline': 1, 
-    'space': 1, 
-    'symbol': 19, 
-    'bracket': 8, 
-    }
     
     password_range = 0
 
@@ -125,48 +119,48 @@ def password_range_calculation() -> int:
         if key == 'password_length':
             continue
         if value:
-            password_range += password_option_range_size.get(key, 0)
+            password_range += PASSWORD_OPTION_RANGE_SIZE.get(key, 0)
 
     return password_range
 
 
 def password_entropy_calculation() -> float:
     """
-    Calculate the entropy of a password based on its length and character diversity.
+    Calculates the entropy of a password based on its length and character diversity.
 
     The entropy is calculated using the formula: 
-    entropy = length * log2(character_pool_size)
-    where character_pool_size is determined by password_range_calculation().
+        entropy = length * log2(character_pool_size)
+    where `character_pool_size` is determined by `password_range_calculation()`.
 
     Returns:
         float: The calculated password entropy in bits. A higher value indicates a stronger password.
     """
     selection_password = var.get()
     password_length = len(selection_password)
-    password_range = password_range_calculation()
-    entropy = password_length * math.log2(password_range)
+    password_pool_size = password_range_calculation()
+    entropy = password_length * math.log2(password_pool_size)
     return entropy
 
-# F
+
 def show_password_entropy() -> None:
     """
-    Calculate and display the password entropy in the GUI label.
+    Calculates and displays the password entropy in the GUI label.
 
     Side Effects:
-        - Calls password_entropy_calculation() to compute the entropy
+        - Calls `password_entropy_calculation()` to compute the entropy
         - Formats the result to 2 decimal places
-        - Updates the text of label_entropy_value with the result
+        - Updates the text of `label_entropy_value` with the result
 
     Returns:
-        None: This function doesn't return anything; it updates the UI directly.
+        None
     """
     password_entropy_value = password_entropy_calculation()
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
-def strength_password_calculation() -> str:
+def strength_password_calculation() -> tuple[str, str]:
     """
-    Evaluate password strength based on its entropy and return a rating with color coding.
+    Evaluates password strength based on its entropy and returns a rating with color coding.
 
     The strength is categorized into 5 levels according to the calculated entropy:
     - Very Weak (🔴): < 28 bits
@@ -180,39 +174,28 @@ def strength_password_calculation() -> str:
             - str: Password strength level with emoji indicator
             - str: Hexadecimal color code corresponding to the strength level
     """
-    
-    strength_level = ''
-    strength_color = ''
 
     password_entropy = password_entropy_calculation()
     
     if password_entropy < 28:
-        strength_level = '🔴 Very Weak'
-        strength_color = STRENGTH_COLORS['very weak']
+        return '🔴 Very Weak', STRENGTH_COLORS['very weak']
     elif password_entropy < 36:
-        strength_level = '🟠 Weak'
-        strength_color = STRENGTH_COLORS['weak']
+        return '🟠 Weak', STRENGTH_COLORS['weak']
     elif password_entropy < 60:
-        strength_level = '🟡 Fair'
-        strength_color = STRENGTH_COLORS['fair']
+        return '🟡 Fair', STRENGTH_COLORS['fair']
     elif password_entropy < 128:
-        strength_level = '🟣 Strong'
-        strength_color =  STRENGTH_COLORS['strong']
+        return '🟣 Strong', STRENGTH_COLORS['strong']
     else:
-        strength_level = '🟢 Perfect'
-        strength_color = STRENGTH_COLORS['perfect']
-    
-    return strength_level, strength_color
+        return '🟢 Perfect', STRENGTH_COLORS['perfect']
 
 
-# F
 def show_strength_password() -> None:
     """
-    Display the password strength rating and its associated color in the GUI.
+    Displays the password strength rating and its associated color in the GUI.
 
     Side Effects:
-    1. Retrieves the strength level and color by calling strength_password_calculation()
-    2. Updates the label_show_strength widget with:
+    1. Retrieves the strength level and color by calling `strength_password_calculation()`
+    2. Updates the `label_show_strength` widget with:
        - Text: The strength level (e.g., "🔴 Very Weak")
        - Foreground color: The associated color code (e.g., "#f01010")
 
@@ -223,21 +206,30 @@ def show_strength_password() -> None:
     label_show_strength['text'] = strength_level
     label_show_strength['fg'] = strength_color
 
-
+# F
 def password_options_from_user() -> None:
+    """
+    Updates the global `password_option` dictionary based on the current user-selected checkbox values.
+
+
+    Side Effects:
+        - Modifies the global `password_option` dictionary by extracting checkbox states from `checkbox_options`.
+    
+    Returns:
+        None
+    """
     for _, (key, value) in enumerate(checkbox_options.items()):
         checkbox_name = re.sub(r'\s\(.*\)', '', key)
         password_option[checkbox_name.lower()] = value.get()
 
 
-
 def generate_password() -> None:
     """
-    Generate a random password based on the options selected by the user.
+    Generates a random password based on the options selected by the user.
 
     Side Effects:
         - Calls the `random_password_generator()` to generate password.
-        - Appends the generated password to the global `password` list.
+        - Appends the generated password to the global `password_list`.
 
     Returns:
         None
@@ -247,13 +239,23 @@ def generate_password() -> None:
 
 
 def show_generated_password_in_combobox() -> None:
+    """
+    Displays the list of generated passwords in the combobox widget.
+    
+    Side Effects:
+        - Updates the values of `combobox_generated_password` with the current `password_list`.
+        - Sets the combobox selection to the most recently generated password.
+
+    Returns:
+        None
+    """
     combobox_generated_password['values'] = password_list
     combobox_generated_password.set(password_list[-1])
 
-# F
+
 def password_strength_calculation(entropy: float) -> tuple[int, str]:
     """
-    Calculate the password strength score and corresponding color based on entropy.
+    Calculates the password strength score and corresponding color based on entropy.
 
     Args:
         entropy (float): The entropy value of the password.
@@ -274,14 +276,14 @@ def password_strength_calculation(entropy: float) -> tuple[int, str]:
     else:
         return 100, STRENGTH_COLORS['perfect']
 
-# F
+
 def update_password_strength_progressbar() -> None:
     """
-    Update the password strength progress bar's value and color based on password entropy.
+    Updates the password strength progress bar's value and color based on password entropy.
     
     Side Effects:
         - Calls `password_entropy_calculation()` to compute the entropy of the current password.
-        - Update the progress bar value and color to visually reflect password strength.
+        - Updates the progress bar value and color to visually reflect password strength.
         
     Returns:
         None
@@ -294,10 +296,28 @@ def update_password_strength_progressbar() -> None:
 
 
 def generate_passowrd_button_function() -> None:
-    password_length_user = int(spinbox_password_length.get())
+    """
+    Handles the event triggered by the 'Generate Password' button.
+
+    Steps performed:
+        1. Retrives and validates the user_specified password length.
+        2. Updates `password_option` based on user selections.
+        3. Generates a password using the specified options.
+        4. Displays the generated password in the combobox.
+        5. Shows the password entropy.
+        6. Shows the textual strength indicator.
+        7. Updates the progress bar based on password strength.
+    
+    Handles:
+        - IndexError by showing a checkbox selection error message.
+
+    Returns:
+        None
+    """
+    password_length = int(spinbox_password_length.get())
 
     try: 
-        set_password_length(password_length_user)
+        set_password_length(password_length)
 
         password_options_from_user()
 
@@ -313,12 +333,12 @@ def generate_passowrd_button_function() -> None:
         
 
     except IndexError:
-        error_messagebox_function()
+        show_checkbox_error_message()
 
-# F
+
 def save_password_to_file(password: str) -> None:
     """
-    Prompt the user with a file save dialog and write the given password.
+    Prompts the user with a file save dialog and writes the given password.
     
     Args:
         password (str): The password to save.
@@ -344,10 +364,10 @@ def save_password_to_file(password: str) -> None:
         finally:
             file.close()
 
-# F
+
 def show_save_error_if_empty(password: str) -> bool:
     """
-    Validate if a password is available for saving.
+    Validates if a password is available for saving.
     
     Args:
         password (str): The password to validate.
@@ -363,10 +383,10 @@ def show_save_error_if_empty(password: str) -> bool:
         return False
     return True
 
-# F
+
 def handle_save_password() -> None:
     """
-    Validate and save the generated password to a user-specified file.
+    Validates and saves the generated password to a user-specified file.
     
     Side Effects:
         Shows error popup if no password is availabel.
@@ -379,13 +399,13 @@ def handle_save_password() -> None:
     if show_save_error_if_empty(generated_password):
         save_password_to_file(generate_password)
     
-#F 
+
 def show_copy_error_if_empty(generated_password: str) -> bool:
     """
-    Check if the generated password is empty. if so, show an error messagebox.
+    Checks if the generated password is empty. if so, shows an error messagebox.
     
     Args:
-        generated_password (str): The password string to check.
+        `generated_password` (str): The password string to check.
 
     Side Effects:
         Displays a messagebox if the password is empty.
@@ -398,11 +418,11 @@ def show_copy_error_if_empty(generated_password: str) -> bool:
         return True
     return False
 
-# F
+
 def show_copy_message() -> None:
     """
-    Display a confirmation message 'Password copied!' in label_guidance_text,
-    then clear the message after 2 seconds.
+    Displays a confirmation message 'Password copied!' in `label_guidance_text`,
+    then clears the message after 2 seconds.
 
     Side Effects:
         - Modifies the label text of `label_guidance_text`.
@@ -417,16 +437,16 @@ def show_copy_message() -> None:
     )
     window.after(2000, lambda: label_guidance_text.config(text=''))
 
-# F
+
 def copy_to_clipboard_function() -> None:
     """
-    Copy the generated password to clipboard.
-    Show an error if password is empty.
+    Copies the generated password to clipboard.
+    Shows an error if password is empty.
 
     Side Effects:
-        - Display an error popup if the password is empty.
+        - Displays an error popup if the password is empty.
         - Copies the password to the system clipboard.
-        - Update the guidance label to show a confirmation message.
+        - Updates the `label_guidance_text` to show a confirmation message.
 
     Returns:
         None
@@ -441,13 +461,13 @@ def copy_to_clipboard_function() -> None:
     
     show_copy_message()
 
-# F
+
 def reset_password_ui() -> None:
     """
-    Reset all password-related GUI elements to their default empty state.
+    Resets all password-related GUI elements to their default empty state.
 
     Side Effects:
-        - Clears the global passwords list
+        - Clears the global `password_list`
         - Resets the password combobox (current selection and dropdown values)
         - Clears the entropy value display
         - Resets the strength indicator text
@@ -456,44 +476,32 @@ def reset_password_ui() -> None:
     Returns:
         None
     """
-    global passwords
-    passwords.clear()
+    global password_list
+    password_list.clear()
     combobox_generated_password.set('')
     combobox_generated_password['values'] = ()
     label_entropy_value['text'] = ''
     label_show_strength['text'] = ''
     progressbar_generated_password['value'] = 0
 
-# F
+
 def toggle_about_text() -> None:
     """
-    Display or toggle the application description in the guidance text label.
+    Displays or toggles the application description in the `label_guidance_text`.
 
     Side Effects:
-        - Shows ABOUT_TEXT in black if the label is empty
+        - Shows `ABOUT_TEXT` in black if the label is empty
         - Clears the Label if it already contains text
-    
-    Returns:
-        None
     """
     if not label_guidance_text['text'].strip():
         label_guidance_text.config(text=ABOUT_TEXT, fg=DEFAULT_TEXT_COLOR)
     else:
         label_guidance_text.config(text='')
 
-# F
+
 def close_function() -> None:
     """
-    Display a confirmation dialog and close the application if user confirms.
-
-    Side Effects:
-        - Displays a modal dialog with "OK" and "Cancel" buttons
-        - Asks the user to confirm quitting the application
-        - If user confirms ("OK"), terminates the application by destroying the main window
-        - If user cancels, returns without taking any action
-
-    Returns:
-        None
+    Displays a confirmation dialog and closes the application if user confirms.
     """
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
         window.destroy()
