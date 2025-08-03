@@ -104,8 +104,7 @@ def set_password_length(password_length: int) -> None:
         show_invalid_password_length_message()
 
 
-
-def password_range_calculation() -> int:
+def calculate_password_range() -> int:
     """
     Calculates the total size of the character set based on selected password options.
 
@@ -124,20 +123,20 @@ def password_range_calculation() -> int:
     return password_range
 
 
-def password_entropy_calculation() -> float:
+def calculate_password_entropy() -> float:
     """
     Calculates the entropy of a password based on its length and character diversity.
 
     The entropy is calculated using the formula: 
         entropy = length * log2(character_pool_size)
-    where `character_pool_size` is determined by `password_range_calculation()`.
+    where `character_pool_size` is determined by `calculate_password_range()`.
 
     Returns:
         float: The calculated password entropy in bits. A higher value indicates a stronger password.
     """
     selection_password = var.get()
     password_length = len(selection_password)
-    password_pool_size = password_range_calculation()
+    password_pool_size = calculate_password_range()
     entropy = password_length * math.log2(password_pool_size)
     return entropy
 
@@ -147,14 +146,14 @@ def show_password_entropy() -> None:
     Calculates and displays the password entropy in the GUI label.
 
     Side Effects:
-        - Calls `password_entropy_calculation()` to compute the entropy
+        - Calls `calculate_password_entropy()` to compute the entropy
         - Formats the result to 2 decimal places
         - Updates the text of `label_entropy_value` with the result
 
     Returns:
         None
     """
-    password_entropy_value = password_entropy_calculation()
+    password_entropy_value = calculate_password_entropy()
     label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
 
 
@@ -175,7 +174,7 @@ def strength_password_calculation() -> tuple[str, str]:
             - str: Hexadecimal color code corresponding to the strength level
     """
 
-    password_entropy = password_entropy_calculation()
+    password_entropy = calculate_password_entropy()
     
     if password_entropy < 28:
         return '🔴 Very Weak', STRENGTH_COLORS['very weak']
@@ -189,7 +188,7 @@ def strength_password_calculation() -> tuple[str, str]:
         return '🟢 Perfect', STRENGTH_COLORS['perfect']
 
 
-def show_strength_password() -> None:
+def show_password_strength() -> None:
     """
     Displays the password strength rating and its associated color in the GUI.
 
@@ -206,8 +205,8 @@ def show_strength_password() -> None:
     label_show_strength['text'] = strength_level
     label_show_strength['fg'] = strength_color
 
-# F
-def password_options_from_user() -> None:
+
+def get_password_options_from_user() -> None:
     """
     Updates the global `password_option` dictionary based on the current user-selected checkbox values.
 
@@ -282,20 +281,20 @@ def update_password_strength_progressbar() -> None:
     Updates the password strength progress bar's value and color based on password entropy.
     
     Side Effects:
-        - Calls `password_entropy_calculation()` to compute the entropy of the current password.
+        - Calls `calculate_password_entropy()` to compute the entropy of the current password.
         - Updates the progress bar value and color to visually reflect password strength.
         
     Returns:
         None
     """
-    entropy = password_entropy_calculation()
+    entropy = calculate_password_entropy()
     strength, color = password_strength_calculation(entropy)
     
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password['value'] = strength
 
 
-def generate_passowrd_button_function() -> None:
+def on_generate_password_click() -> None:
     """
     Handles the event triggered by the 'Generate Password' button.
 
@@ -319,7 +318,7 @@ def generate_passowrd_button_function() -> None:
     try: 
         set_password_length(password_length)
 
-        password_options_from_user()
+        get_password_options_from_user()
 
         generate_password()
         
@@ -327,7 +326,7 @@ def generate_passowrd_button_function() -> None:
         
         show_password_entropy()
 
-        show_strength_password()
+        show_password_strength()
 
         update_password_strength_progressbar()
         
@@ -438,7 +437,7 @@ def show_copy_message() -> None:
     window.after(2000, lambda: label_guidance_text.config(text=''))
 
 
-def copy_to_clipboard_function() -> None:
+def copy_to_clipboard() -> None:
     """
     Copies the generated password to clipboard.
     Shows an error if password is empty.
@@ -499,7 +498,7 @@ def toggle_about_text() -> None:
         label_guidance_text.config(text='')
 
 
-def close_function() -> None:
+def close_app() -> None:
     """
     Displays a confirmation dialog and closes the application if user confirms.
     """
@@ -708,7 +707,7 @@ button_generate_password = tk.Button(
     activebackground='yellow',
     anchor='center',
     font=('Noto Sans', 10),
-    command=generate_passowrd_button_function,
+    command=on_generate_password_click,
 )
 button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 
@@ -726,7 +725,7 @@ button_copy_to_clipboard = tk.Button(
     master=labelframe_buttons, 
     text='Copy to clipboard',
     font=('Noto Sans', 10),
-    command=copy_to_clipboard_function,
+    command=copy_to_clipboard,
 )
 button_copy_to_clipboard.grid(row=0, column=1, ipadx=15, ipady=10)
 
@@ -753,7 +752,7 @@ button_close = tk.Button(
     master=labelframe_buttons, 
     text='Close',
     font=('Noto Sans', 10),
-    command=close_function)
+    command=close_app)
 button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 
 
