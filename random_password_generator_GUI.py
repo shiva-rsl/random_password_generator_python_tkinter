@@ -349,7 +349,7 @@ def save_password_to_file(password: str) -> None:
 
     if file:
         try:
-            file.write(password)
+            file.write("\n".join(password_list))
         finally:
             file.close()
 
