@@ -70,6 +70,16 @@ def show_invalid_password_length_message() -> None:
     )
 
 
+def get_spinbox_password_length() -> int | None:
+    """
+    Retrieve the password length form the spinbox.
+
+    Returns:
+        int: The selected password length.
+    """
+    return int(spinbox_password_length.get())
+
+
 def is_valid_password_length(password_length: int) -> bool:
     """
     Checks if the password length is valid (between 8 and 30).
@@ -83,26 +93,25 @@ def is_valid_password_length(password_length: int) -> bool:
     return MIN_PASSWORD_LENGTH <= password_length <= MAX_PASSWORD_LENGTH
 
 
-def set_password_length(password_length: int) -> None:
+def set_password_length() -> None:
     """
     Sets the password length in the `password_option` dictionary if valid.
-    Shows an error message if invalid.
+    Raises a ValueError if is invalid.
 
-    Args:
-        `password_length` (int): The length to set.
+    Raises:
+        ValueError: If the password length is invalid (e.g., below minimum or above maximum allowed).
 
     Side Effects:
         Updates global `password_option` if valid.
-        Shows an error message if invalid.
 
     Returns:
         None
     """
-    if is_valid_password_length(password_length):
-        password_option['password_length'] = password_length
-    else:
-        show_invalid_password_length_message()
-
+    password_length = get_spinbox_password_length()
+    if not is_valid_password_length(password_length):
+        raise ValueError
+    password_option['password_length'] = password_length
+    
 
 def calculate_password_range() -> int:
     """
@@ -292,10 +301,9 @@ def on_generate_password_click() -> None:
     Returns:
         None
     """
-    password_length = int(spinbox_password_length.get())
 
     try: 
-        set_password_length(password_length)
+        set_password_length()
 
         get_password_options_from_user()
 
@@ -308,10 +316,13 @@ def on_generate_password_click() -> None:
         show_password_strength()
 
         update_password_strength_progressbar()
-        
 
     except IndexError:
         show_checkbox_error_message()
+    
+    except ValueError:
+        show_invalid_password_length_message()
+
 
 
 def save_password_to_file(password: str) -> None:
@@ -679,6 +690,7 @@ spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, 
 
 
 # Buttons
+
 button_generate_password = tk.Button(
     master=labelframe_settings, 
     text='Generate Password', 
