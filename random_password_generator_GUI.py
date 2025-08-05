@@ -113,45 +113,39 @@ def set_password_length() -> None:
     password_option['password_length'] = password_length
 
 
-def selected_password_combobox(*args):
-
-    selected_password_option: PasswordSettings = {
-        'password_length': DEFAULT_PASSWORD_LENGTH,
-        'uppercase': False,
-        'lowercase': False,
-        'space': False,
-        'minus': False,
-        'underline': False,
-        'digit': False,
-        'symbol': False,
-        'bracket': False,
-    }
+def get_selected_password_length() -> int:
+    """
+    Evaluates the length of selected password from the combobox.
     
+    Returns:
+        int: Length of the selected password.
+    """
     selection_password = combobox_generated_password.get()
-    password_length = len(selection_password)
+    return len(selection_password)
 
-    for key, _ in selected_password_option.items():
-        if key == 'password_length':
-            selected_password_option['password_length'] = password_length
-        else:
-            if re.search(r"[A-Z]", selection_password):
-                selected_password_option['uppercase'] = True
-            if re.search(r"[a-z]", selection_password):
-                selected_password_option['lowercase'] = True
-            if re.search(r"[0-9]", selection_password):
-                selected_password_option['digit'] = True
-            if re.search(r"-", selection_password):
-                selected_password_option['minus'] = True
-            if re.search(r"_", selection_password):
-                selected_password_option['underline'] = True
-            if re.search(r"\s", selection_password):
-                selected_password_option['space'] = True
-            if re.search(r"[!?@#$%&*^~/|:;.,'\"']", selection_password):
-                selected_password_option['symbol'] = True
-            if re.search(r"[{}\[\]()<>]", selection_password):
-                selected_password_option['bracket'] = True
-    # print(selected_password_option)
-    return selected_password_option
+
+def analyze_selected_password() -> dict:
+    """
+    Analyzes the selected password from the combobox and returns a dictionary of its features.
+
+    Returns:
+        dict: A dictionary indicating the presence of character types and password length.
+    """
+    
+    selected_password = combobox_generated_password.get()
+    length = get_selected_password_length()
+    
+    return {
+        'password_length': length,
+        'uppercase': bool(re.search(r"[A-Z]", selected_password)),
+        'lowercase': bool(re.search(r"[a-z]", selected_password)),
+        'digit': bool(re.search(r"[0-9]", selected_password)),
+        'minus': bool(re.search(r"-", selected_password)),
+        'underline': bool(re.search(r"_", selected_password)),
+        'space': bool(re.search(r"\s", selected_password)),
+        'symbol': bool(re.search(r"[!?@#$%&*^~/|:;.,'\"']", selected_password)),
+        'bracket': bool(re.search(r"[{}\[\]()<>]", selected_password)),
+    }
 
 
 def calculate_password_range() -> int:
@@ -163,9 +157,9 @@ def calculate_password_range() -> int:
     """
     
     password_range = 0
-    selected_password_option = selected_password_combobox()
-    # for key, value in password_option.items():
-    for key, value in selected_password_option.items():
+    password_features = analyze_selected_password()
+    
+    for key, value in password_features.items():
         if key == 'password_length':
             continue
         if value:
@@ -173,7 +167,7 @@ def calculate_password_range() -> int:
 
     return password_range
 
-# should solve redundancy
+
 def calculate_password_entropy() -> float:
     """
     Calculates the entropy of a password based on its length and character diversity.
@@ -185,11 +179,8 @@ def calculate_password_entropy() -> float:
     Returns:
         float: The calculated password entropy in bits. A higher value indicates a stronger password.
     """
-    # selection_password = var.get()
-    # password_length = len(selection_password)
 
-    selection_password = combobox_generated_password.get()
-    password_length = len(selection_password)
+    password_length = get_selected_password_length()
 
     password_pool_size = calculate_password_range()
     entropy = password_length * math.log2(password_pool_size)
@@ -209,7 +200,6 @@ def show_password_entropy(*args) -> None:
         None
     """
     password_entropy_value = calculate_password_entropy()
-    # label_entropy_value['text'] = f'{password_entropy_value:.2f} bits'
     label_entropy_value.config(text=f'{password_entropy_value:.2f} bits')
 
 
@@ -247,9 +237,9 @@ def calculate_password_strength() -> tuple[int, str, str]:
     return strength_date['score'], strength_date['label'], strength_date['color']
 
 
-def show_only_password_strength() -> None:
+def update_password_strength_label() -> None:
     """
-    Displays the password strength rating and its associated color in the GUI.
+    Updates the password strength rating and its associated color in the GUI.
 
     Side Effects:
     1. Retrieves the strength level and color by calling `calculate_password_strength()`
@@ -261,8 +251,6 @@ def show_only_password_strength() -> None:
         None
     """
     _, strength_level, strength_color  = calculate_password_strength()
-    # label_show_strength['text'] = strength_level
-    # label_show_strength['fg'] = strength_color
     label_show_strength.config(text=strength_level, fg=strength_color)
 
 
@@ -308,11 +296,11 @@ def show_generated_password_in_combobox() -> None:
     Returns:
         None
     """
-    combobox_generated_password['values'] = password_list
+    combobox_generated_password.config(values=password_list)
     combobox_generated_password.set(password_list[-1])
 
 
-def update_password_strength_progressbar() -> None:
+def show_password_strength_in_progressbar() -> None:
     """
     Updates the password strength progress bar's value and color based on password entropy.
     
@@ -326,14 +314,19 @@ def update_password_strength_progressbar() -> None:
     strength, _, color = calculate_password_strength()
     
     style.configure('strength.Horizontal.TProgressbar', background=color)
-    # progressbar_generated_password['value'] = strength
     progressbar_generated_password.config(value=strength)
 
 
-def show_password_strength(*args):
+def update_password_strength_display(*args) -> None:
+    """
+    Updates the entire password strength view, including:
+        - Entropy display
+        - Strength label
+        - Progress bar
+    """
     show_password_entropy()
-    show_only_password_strength()
-    update_password_strength_progressbar()
+    update_password_strength_label()
+    show_password_strength_in_progressbar()
 
 
 def on_generate_password_click() -> None:
@@ -365,20 +358,13 @@ def on_generate_password_click() -> None:
         
         show_generated_password_in_combobox()
 
-        show_password_strength()
-        
-        # show_password_entropy()
-
-        # show_only_password_strength()
-
-        # update_password_strength_progressbar()
+        update_password_strength_display()
 
     except IndexError:
         show_checkbox_error_message()
     
     except ValueError:
         show_invalid_password_length_message()
-
 
 
 def save_password_to_file(password: str) -> None:
@@ -524,10 +510,10 @@ def reset_password_ui() -> None:
     global password_list
     password_list.clear()
     combobox_generated_password.set('')
-    combobox_generated_password['values'] = ()
-    label_entropy_value['text'] = ''
-    label_show_strength['text'] = ''
-    progressbar_generated_password['value'] = 0
+    combobox_generated_password.config(values=())
+    label_entropy_value.config(text='')
+    label_show_strength.config(text='')
+    progressbar_generated_password.config(value=0)
 
 
 def toggle_about_text() -> None:
@@ -701,7 +687,7 @@ combobox_generated_password = ttk.Combobox(
     textvariable=var,
 )
 combobox_generated_password.grid(row=0, column=1, padx=5)
-combobox_generated_password.bind("<<ComboboxSelected>>", show_password_strength)
+combobox_generated_password.bind("<<ComboboxSelected>>", update_password_strength_display)
 
 # Checkboxs
 checkbox_options = {
