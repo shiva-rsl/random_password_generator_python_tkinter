@@ -8,7 +8,16 @@ from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
 
 
-DEFAULT_TEXT_COLOR = "#000000"
+# Constants
+FONT_LARGE = ('Noto Sans', 20)
+FONT_MEDIUM = ('Noto Sans', 15)
+FONT_NORMAL = ('Noto Sans', 12)
+FONT_SMALL = ('Noto Sans', 10)
+FONT_BOLD = ('Noto Sans', 12, 'bold')
+
+COLOR_BACKGROUND = "#000000"
+COLOR_FORGROUND = "#F0CF28"
+
 ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters.'''
@@ -525,7 +534,7 @@ def toggle_about_text() -> None:
         - Clears the Label if it already contains text
     """
     if not label_guidance_text['text'].strip():
-        label_guidance_text.config(text=ABOUT_TEXT, fg=DEFAULT_TEXT_COLOR)
+        label_guidance_text.config(text=ABOUT_TEXT, fg=COLOR_BACKGROUND)
     else:
         label_guidance_text.config(text='')
 
@@ -536,6 +545,33 @@ def close_app() -> None:
     """
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
         window.destroy()
+
+
+def create_label(master, font, text=None, background=None, foreground=None, **grid_options):
+    """
+    Creates label widgets with the given options.
+
+    Args:
+        master (tk.Widget): The parent widget.
+        font (tuple): Font settings for the label.
+        text (str, optional): Text to display on the label.
+        background (str, optional): Background color.
+        foreground (str, optional): Text color (foreground).
+        **grid_options: Additional keyword arguments for grid placement.
+
+    Returns:
+        tk.Label: The created Label widget.
+    """
+    
+    label = tk.Label(
+        master=master,
+        text=text,
+        font=font,
+        background=background,
+        foreground=foreground,
+    )
+    label.grid(**grid_options)
+    return label
 
 
 # Main window
@@ -554,7 +590,7 @@ window.configure(bg='#DFE4E8')
 labelframe_settings = tk.LabelFrame(
     master=window, 
     text='Password settings', 
-    font=('Noto Sans', 20, ),
+    font=FONT_LARGE,
 )
 labelframe_settings.grid(row=2, column=0, columnspan=5, padx=(10, 10), pady=(10, 0), sticky='EW')
 
@@ -566,7 +602,7 @@ labelframe_settings.columnconfigure(2, weight=1)
 labelframe_generated_password = tk.LabelFrame(
     master=window,
     text='Generated Password(s)',
-    font=('Noto Sans', 20, ),
+    font=FONT_LARGE,
 )
 labelframe_generated_password.grid(row=3, column=0, ipadx=120, ipady=5, padx=(10, 10), pady=(10, 10))
 
@@ -583,7 +619,7 @@ style = ttk.Style(labelframe_generated_password)
 
 # Labels
 
-label_texts = {
+LABEL_TEXT = {
     'title': 'Random Password Generator',
     'subtitle': 'A free tool to quickly create your password',
     'length': 'Length of generated password: ',
@@ -594,95 +630,123 @@ label_texts = {
 }
 
 
-label_title = tk.Label(
-    master=window, 
-    text=label_texts['title'], 
-    background='black', 
-    foreground='yellow', 
-    font=('Noto Sans', 20)
-)
-label_title.grid(row=0, column=0, columnspan=5, ipadx=250, ipady=15, sticky='NSEW')
-
-
-label_title_definition = tk.Label(
+label_title = create_label(
     master=window,
-    text=label_texts['subtitle'],
-    background='black', 
-    foreground='yellow', 
-    font=('Noto Sans', 12),
+    text=LABEL_TEXT['title'],
+    font=FONT_LARGE,
+    background=COLOR_BACKGROUND,
+    foreground=COLOR_FORGROUND,
+    row=0,
+    column=0,
+    columnspan=5,
+    ipadx=250, 
+    ipady=15, 
+    sticky='NSEW'
 )
-label_title_definition.grid(row=1, column=0, columnspan=5, ipady=5, sticky='NEW')
 
 
-label_password_length = tk.Label(
-    master=labelframe_settings, 
-    text=label_texts['length'],
-    font=('Noto Sans', 10),
-)
-label_password_length.grid(row=0, column=0, padx=(30, 0), pady=(30, 30), sticky='w')
-
-
-label_password_length_numbers = tk.Label(
-    master=labelframe_settings, 
-    text=label_texts['length_note'],
-    font=('Noto Sans', 10),
-)
-label_password_length_numbers.grid(row=0, column=2, padx=(0, 80), pady=(30, 30), sticky='w')
-
-
-label_random_password = tk.Label(
-    master=labelframe_generated_password, 
-    text=label_texts['output'],
-    font=('Noto Sans', 15),
-    anchor='center'
-)
-label_random_password.grid(row=0, column=0, padx=20, pady=30, sticky='E', )
-
-
-label_password_strength = tk.Label(
-    master=labelframe_generated_password,
-    font=('Noto Sans', 12), 
-    text=label_texts['strength'],
-)
-label_password_strength.grid(row=1, column=0, pady=10)
-
-
-label_show_strength = tk.Label(
-    master=labelframe_generated_password,
-    font=('Noto Sans', 12, 'bold'),
-)
-label_show_strength.grid(row=1, column=2)
-
-
-label_entropy_calc = tk.Label(
-    master=labelframe_generated_password,
-    font=('Noto Sans', 12),
-    text=label_texts['entropy']
-)
-label_entropy_calc.grid(row=2, column=0, pady=10)
-
-
-label_entropy_value = tk.Label(
-    master=labelframe_generated_password,
-    font=('Noto Sans', 12, 'bold'),
-)
-label_entropy_value.grid(row=2, column=1, sticky='w')
-
-
-label_guidance_text = tk.Label(
+label_subtitle = create_label(
     master=window,
-    background='#DFE4E8',
+    text=LABEL_TEXT['subtitle'],
+    font=FONT_NORMAL,
+    background=COLOR_BACKGROUND,
+    foreground=COLOR_FORGROUND,
+    row=1, 
+    column=0, 
+    columnspan=5, 
+    ipady=5, 
+    sticky='NEW',
 )
-label_guidance_text.grid(row=9, column=0, columnspan=3, )
+    
+
+label_password_length = create_label(
+    master=labelframe_settings,
+    text=LABEL_TEXT['length'],
+    font=FONT_SMALL,
+    row=0, 
+    column=0, 
+    padx=(30, 0), 
+    pady=(30, 30), 
+    sticky='w',
+)
 
 
+label_password_length_numbers = create_label(
+    master=labelframe_settings,
+    text=LABEL_TEXT['length_note'],
+    font=FONT_SMALL,
+    row=0, 
+    column=2, 
+    padx=(0, 80), 
+    pady=(30, 30), 
+    sticky='w'
+)
+
+
+label_random_password = create_label(
+    master=labelframe_generated_password,
+    text=LABEL_TEXT['output'],
+    font=FONT_MEDIUM,
+    row=0, 
+    column=0, 
+    padx=20, 
+    pady=30, 
+    sticky='E'
+)
+
+
+label_password_strength = create_label(
+    master=labelframe_generated_password,
+    text=LABEL_TEXT['strength'],
+    font=FONT_SMALL,
+    row=1, 
+    column=0, 
+    pady=10
+)
+
+
+label_show_strength = create_label(
+    master=labelframe_generated_password,
+    font=FONT_BOLD,
+    row=1,
+    column=2,
+)
+
+
+label_entropy_calc = create_label(
+    master=labelframe_generated_password,
+    font=FONT_SMALL,
+    text=LABEL_TEXT['entropy'],
+    row=2, 
+    column=0, 
+    pady=10
+)
+
+
+label_entropy_value = create_label(
+    master=labelframe_generated_password,
+    font=FONT_BOLD,
+    row=2, 
+    column=1, 
+    sticky='w'
+)
+
+
+label_guidance_text = create_label(
+    master=window,
+    font=FONT_SMALL,
+    background="#DFE4E8",
+    row=9, 
+    column=0, 
+    columnspan=3,
+)
 
 # Combobox
 var = tk.StringVar()
 combobox_generated_password = ttk.Combobox(
     master=labelframe_generated_password,
     width=28,
-    font=('Noto Sans', 15),
+    font=FONT_MEDIUM,
     values=password_list,
     textvariable=var,
 )
@@ -739,7 +803,7 @@ button_generate_password = tk.Button(
     background='yellow', 
     activebackground='yellow',
     anchor='center',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=on_generate_password_click,
 )
 button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
@@ -748,7 +812,7 @@ button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
 button_save = tk.Button(
     master=labelframe_buttons, 
     text='Save Password',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=handle_save_password,
 )
 button_save.grid(row=0, column=0, ipadx=15, ipady=10)
@@ -757,7 +821,7 @@ button_save.grid(row=0, column=0, ipadx=15, ipady=10)
 button_copy_to_clipboard = tk.Button(
     master=labelframe_buttons, 
     text='Copy to clipboard',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=copy_to_clipboard,
 )
 button_copy_to_clipboard.grid(row=0, column=1, ipadx=15, ipady=10)
@@ -766,7 +830,7 @@ button_copy_to_clipboard.grid(row=0, column=1, ipadx=15, ipady=10)
 button_clear = tk.Button(
     master=labelframe_buttons, 
     text='Clear',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=reset_password_ui,
 )
 button_clear.grid(row=0, column=2, ipadx=25, ipady=10)
@@ -775,7 +839,7 @@ button_clear.grid(row=0, column=2, ipadx=25, ipady=10)
 button_about = tk.Button(
     master=labelframe_buttons, 
     text='About',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=toggle_about_text,
 )
 button_about.grid(row=0, column=3, ipadx=25, ipady=10)
@@ -784,7 +848,7 @@ button_about.grid(row=0, column=3, ipadx=25, ipady=10)
 button_close = tk.Button(
     master=labelframe_buttons, 
     text='Close',
-    font=('Noto Sans', 10),
+    font=FONT_SMALL,
     command=close_app)
 button_close.grid(row=0, column=4, ipadx=23, ipady=10)
 
