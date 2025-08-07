@@ -209,7 +209,7 @@ def show_password_entropy(*args) -> None:
         None
     """
     password_entropy_value = calculate_password_entropy()
-    label_entropy_value.config(text=f'{password_entropy_value:.2f} bits')
+    labels['label_entropy_value'].config(text=f'{password_entropy_value:.2f} bits')
 
 
 def evaluate_password_strength(password_entropy: float) -> dict:
@@ -260,7 +260,7 @@ def update_password_strength_label() -> None:
         None
     """
     _, strength_level, strength_color  = calculate_password_strength()
-    label_show_strength.config(text=strength_level, fg=strength_color)
+    labels['label_show_strength'].config(text=strength_level, fg=strength_color)
 
 
 def get_password_options_from_user() -> None:
@@ -471,11 +471,11 @@ def show_copy_message() -> None:
     Returns:
         None
     """
-    label_guidance_text.config(
+    labels['label_guidance_text'].config(
         text='Password copied!', 
         fg="#066A10"
     )
-    window.after(2000, lambda: label_guidance_text.config(text=''))
+    window.after(2000, lambda: labels['label_guidance_text'].config(text=''))
 
 
 def copy_to_clipboard() -> None:
@@ -520,8 +520,8 @@ def reset_password_ui() -> None:
     password_list.clear()
     combobox_generated_password.set('')
     combobox_generated_password.config(values=())
-    label_entropy_value.config(text='')
-    label_show_strength.config(text='')
+    labels['label_entropy_value'].config(text='')
+    labels['label_show_strength'].config(text='')
     progressbar_generated_password.config(value=0)
 
 
@@ -533,10 +533,10 @@ def toggle_about_text() -> None:
         - Shows `ABOUT_TEXT` in black if the label is empty
         - Clears the Label if it already contains text
     """
-    if not label_guidance_text['text'].strip():
-        label_guidance_text.config(text=ABOUT_TEXT, fg=COLOR_BACKGROUND)
+    if not labels['label_guidance_text']['text'].strip():
+        labels['label_guidance_text'].config(text=ABOUT_TEXT, fg=COLOR_BACKGROUND)
     else:
-        label_guidance_text.config(text='')
+        labels['label_guidance_text'].config(text='')
 
 
 def close_app() -> None:
@@ -547,7 +547,7 @@ def close_app() -> None:
         window.destroy()
 
 
-def create_label(master, font, text=None, background=None, foreground=None, **grid_options):
+def _create_label(master, font, text=None, background=None, foreground=None, **grid_options):
     """
     Creates label widgets with the given options.
 
@@ -619,127 +619,95 @@ style = ttk.Style(labelframe_generated_password)
 
 # Labels
 
-LABEL_TEXT = {
-    'title': 'Random Password Generator',
-    'subtitle': 'A free tool to quickly create your password',
-    'length': 'Length of generated password: ',
-    'length_note': '(8 to 30 Chars)',
-    'output': 'Password: ',
-    'entropy': 'Total Entropy:',
-    'strength': 'Strength: ',
-}
+label_configs = [
+    {
+        'name': 'label_title',
+        'master': window,
+        'text': 'Random Password Generator',
+        'font': FONT_LARGE,
+        'background': COLOR_BACKGROUND,
+        'foreground': COLOR_FORGROUND,
+        'grid': {'row':0, 'column':0, 'columnspan':5, 'ipadx':250, 'ipady':15, 'sticky':'NSEW'},
+    },
+    {
+        'name': 'label_subtitle',
+        'master': window,
+        'text': 'A free tool to quickly create your password',
+        'font': FONT_NORMAL,
+        'background': COLOR_BACKGROUND,
+        'foreground': COLOR_FORGROUND,
+        'grid': {'row':1, 'column':0, 'columnspan':5, 'ipady':5, 'sticky':'NEW',},
+    },
+    {
+        'name': 'label_password_length',
+        'master': labelframe_settings,
+        'text': 'Length of generated password: ',
+        'font': FONT_SMALL,
+        'grid': {'row':0, 'column':0, 'padx':(30, 0), 'pady':(30, 30), 'sticky':'w'},
+    },
+    {
+        'name': 'label_password_length_numbers',
+        'master': labelframe_settings,
+        'text': '(8 to 30 Chars)',
+        'font': FONT_SMALL,
+        'grid': {'row':0, 'column':2, 'padx':(0, 80), 'pady':(30, 30), 'sticky':'w'},
+    },
+    {
+        'name': 'label_random_password',
+        'master': labelframe_generated_password,
+        'text': 'Password: ',
+        'font': FONT_MEDIUM,
+        'grid': {'row':0, 'column':0, 'padx':20, 'pady':30, 'sticky':'E'},
+    },
+    {
+        'name': 'label_password_strength',
+        'master': labelframe_generated_password,
+        'text': 'Strength: ',
+        'font': FONT_SMALL,
+        'grid': {'row':1, 'column':0, 'pady':10},
+    },
+    {
+        'name': 'label_show_strength',
+        'master': labelframe_generated_password,
+        'font': FONT_BOLD,
+        'grid': {'row':1, 'column':2,},
 
+    },
+    {
+        'name': 'label_entropy_calc',
+        'master': labelframe_generated_password,
+        'text': 'Total Entropy:',
+        'font': FONT_SMALL,
+        'grid': {'row':2, 'column':0, 'pady':10},
+    },
+    {
+        'name': 'label_entropy_value',
+        'master': labelframe_generated_password,
+        'font': FONT_BOLD,
+        'grid': {'row':2, 'column':1, 'sticky':'w'},
+    },
+    {
+        'name': 'label_guidance_text',
+        'master': window,
+        'font': FONT_SMALL,
+        'background': "#DFE4E8",
+        'grid': {'row':9, 'column':0, 'columnspan':3,},
+    },
+]
 
-label_title = create_label(
-    master=window,
-    text=LABEL_TEXT['title'],
-    font=FONT_LARGE,
-    background=COLOR_BACKGROUND,
-    foreground=COLOR_FORGROUND,
-    row=0,
-    column=0,
-    columnspan=5,
-    ipadx=250, 
-    ipady=15, 
-    sticky='NSEW'
-)
+labels = {}
 
+for config in label_configs:
+    label = _create_label(
+        master=config["master"],
+        font=config["font"],
+        text=config.get('text'),
+        background=config.get("background"),
+        foreground=config.get("foreground"),
+        **config["grid"]
+    )
+    labels[config['name']] = label
 
-label_subtitle = create_label(
-    master=window,
-    text=LABEL_TEXT['subtitle'],
-    font=FONT_NORMAL,
-    background=COLOR_BACKGROUND,
-    foreground=COLOR_FORGROUND,
-    row=1, 
-    column=0, 
-    columnspan=5, 
-    ipady=5, 
-    sticky='NEW',
-)
-    
-
-label_password_length = create_label(
-    master=labelframe_settings,
-    text=LABEL_TEXT['length'],
-    font=FONT_SMALL,
-    row=0, 
-    column=0, 
-    padx=(30, 0), 
-    pady=(30, 30), 
-    sticky='w',
-)
-
-
-label_password_length_numbers = create_label(
-    master=labelframe_settings,
-    text=LABEL_TEXT['length_note'],
-    font=FONT_SMALL,
-    row=0, 
-    column=2, 
-    padx=(0, 80), 
-    pady=(30, 30), 
-    sticky='w'
-)
-
-
-label_random_password = create_label(
-    master=labelframe_generated_password,
-    text=LABEL_TEXT['output'],
-    font=FONT_MEDIUM,
-    row=0, 
-    column=0, 
-    padx=20, 
-    pady=30, 
-    sticky='E'
-)
-
-
-label_password_strength = create_label(
-    master=labelframe_generated_password,
-    text=LABEL_TEXT['strength'],
-    font=FONT_SMALL,
-    row=1, 
-    column=0, 
-    pady=10
-)
-
-
-label_show_strength = create_label(
-    master=labelframe_generated_password,
-    font=FONT_BOLD,
-    row=1,
-    column=2,
-)
-
-
-label_entropy_calc = create_label(
-    master=labelframe_generated_password,
-    font=FONT_SMALL,
-    text=LABEL_TEXT['entropy'],
-    row=2, 
-    column=0, 
-    pady=10
-)
-
-
-label_entropy_value = create_label(
-    master=labelframe_generated_password,
-    font=FONT_BOLD,
-    row=2, 
-    column=1, 
-    sticky='w'
-)
-
-
-label_guidance_text = create_label(
-    master=window,
-    font=FONT_SMALL,
-    background="#DFE4E8",
-    row=9, 
-    column=0, 
-    columnspan=3,
-)
 
 # Combobox
 var = tk.StringVar()
