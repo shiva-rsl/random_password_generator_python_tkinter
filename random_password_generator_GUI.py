@@ -21,6 +21,7 @@ COLOR_FORGROUND = "#F0CF28"
 ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters.'''
+
 STRENGTH_COLORS = {
     'very_weak': "#f01010",
     'weak': "#ed761c",
@@ -28,6 +29,7 @@ STRENGTH_COLORS = {
     'strong': "#e52bf2",
     'perfect': "#06be06"
 }
+
 PASSWORD_OPTION_RANGE_SIZE = {    
     'uppercase': 26, 
     'lowercase': 26, 
@@ -43,6 +45,8 @@ PASSWORD_OPTION_RANGE_SIZE = {
 checkbox_variables = []
 password_option = {}
 password_list = []
+buttons = {}
+labels = {}
 
 
 # Functions
@@ -574,6 +578,36 @@ def _create_label(master, font, text=None, background=None, foreground=None, **g
     return label
 
 
+def _create_button(master, text, command, font=FONT_SMALL, background=None, activebackground=None, anchor=None, **grid_options):
+    """
+    Creates button widgets with the given options.
+
+    Args:
+        master (tk.Widget): The parent widget.
+        text (str): Text to display on the button.
+        command (function): The function to call when the button is clicked.
+        font (tuple): Font settings for the button. Defaults to FONT_SMALL.
+        background (str, optional): Background color.
+        activebackground (str, optional): Background color when active.
+        anchor (str, optional): Text alignment inside the button (e.g., 'w', 'center').
+        **grid_options: Additional keyword arguments for grid placement.
+
+    Returns:
+        tk.Button: The created button widget.
+    """
+    button = tk.Button(
+        master=master,
+        text=text,
+        command=command,
+        font=font,
+        background=background,
+        activebackground=activebackground,
+        anchor=anchor,
+    )
+    button.grid(**grid_options)
+    return button
+
+
 # Main window
 window = tk.Tk()
 window.geometry('700x840')
@@ -695,16 +729,15 @@ label_configs = [
     },
 ]
 
-labels = {}
 
 for config in label_configs:
     label = _create_label(
-        master=config["master"],
-        font=config["font"],
+        master=config['master'],
+        font=config['font'],
         text=config.get('text'),
-        background=config.get("background"),
-        foreground=config.get("foreground"),
-        **config["grid"]
+        background=config.get('background'),
+        foreground=config.get('foreground'),
+        **config['grid']
     )
     labels[config['name']] = label
 
@@ -720,6 +753,7 @@ combobox_generated_password = ttk.Combobox(
 )
 combobox_generated_password.grid(row=0, column=1, padx=5)
 combobox_generated_password.bind("<<ComboboxSelected>>", update_password_strength_display)
+
 
 # Checkboxs
 checkbox_options = {
@@ -765,60 +799,66 @@ spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, 
 
 # Buttons
 
-button_generate_password = tk.Button(
-    master=labelframe_settings, 
-    text='Generate Password', 
-    background='yellow', 
-    activebackground='yellow',
-    anchor='center',
-    font=FONT_SMALL,
-    command=on_generate_password_click,
-)
-button_generate_password.grid(row=6, column=1, pady=20, ipady=7, sticky='W')
+button_configs = [
+    {
+        'name': 'button_generate_password',
+        'master': labelframe_settings,
+        'text': 'Generate Password',
+        'command': on_generate_password_click,
+        'background': 'yellow', 
+        'activebackground': 'yellow',
+        'anchor': 'center',
+        'grid': {'row':6, 'column':1, 'pady':20, 'ipady':7, 'sticky':'W'}
+    },
+    {
+        'name': 'button_save',
+        'master': labelframe_buttons,
+        'text': 'Save Password',
+        'command': handle_save_password,
+        'grid': {'row':0, 'column':0, 'ipadx':15, 'ipady':10}
+    },
+    {
+        'name': 'button_copy_to_clipboard',
+        'master': labelframe_buttons,
+        'text': 'Copy to clipboard',
+        'command': copy_to_clipboard,
+        'grid': {'row':0, 'column':1, 'ipadx':15, 'ipady':10}
+    },
+    {
+        'name': 'button_clear',
+        'master': labelframe_buttons,
+        'text': 'Clear',
+        'command': reset_password_ui,
+        'grid': {'row':0, 'column':2, 'ipadx':25, 'ipady':10}
+    },
+    {
+        'name': 'button_about',
+        'master': labelframe_buttons,
+        'text': 'About',
+        'command': toggle_about_text,
+        'grid': {'row':0, 'column':3, 'ipadx':25, 'ipady':10}
+    },
+    {
+        'name': 'button_close',
+        'master': labelframe_buttons,
+        'text': 'Close',
+        'command': close_app,
+        'grid': {'row':0, 'column':4, 'ipadx':23, 'ipady':10}
+    },
+]
 
 
-button_save = tk.Button(
-    master=labelframe_buttons, 
-    text='Save Password',
-    font=FONT_SMALL,
-    command=handle_save_password,
-)
-button_save.grid(row=0, column=0, ipadx=15, ipady=10)
-
-
-button_copy_to_clipboard = tk.Button(
-    master=labelframe_buttons, 
-    text='Copy to clipboard',
-    font=FONT_SMALL,
-    command=copy_to_clipboard,
-)
-button_copy_to_clipboard.grid(row=0, column=1, ipadx=15, ipady=10)
-
-
-button_clear = tk.Button(
-    master=labelframe_buttons, 
-    text='Clear',
-    font=FONT_SMALL,
-    command=reset_password_ui,
-)
-button_clear.grid(row=0, column=2, ipadx=25, ipady=10)
-
-
-button_about = tk.Button(
-    master=labelframe_buttons, 
-    text='About',
-    font=FONT_SMALL,
-    command=toggle_about_text,
-)
-button_about.grid(row=0, column=3, ipadx=25, ipady=10)
-
-
-button_close = tk.Button(
-    master=labelframe_buttons, 
-    text='Close',
-    font=FONT_SMALL,
-    command=close_app)
-button_close.grid(row=0, column=4, ipadx=23, ipady=10)
+for config in button_configs:
+    button = _create_button(
+        master=config['master'],
+        text=config['text'],
+        command=config['command'],
+        background=config.get('background'),
+        activebackground=config.get('activebackground'),
+        anchor=config.get('anchor'),
+        **config['grid'],
+    )
+    buttons[config['name']] = button
 
 
 # ProgressBar
