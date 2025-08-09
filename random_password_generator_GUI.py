@@ -551,61 +551,37 @@ def close_app() -> None:
         window.destroy()
 
 
-def _create_label(master, font, text=None, background=None, foreground=None, **grid_options):
+def _create_widget(widget_type, widget_config, widget_collection):
     """
-    Creates label widgets with the given options.
+    Creates and places a tkinter widget based on its configuration.
 
     Args:
-        master (tk.Widget): The parent widget.
-        font (tuple): Font settings for the label.
-        text (str, optional): Text to display on the label.
-        background (str, optional): Background color.
-        foreground (str, optional): Text color (foreground).
-        **grid_options: Additional keyword arguments for grid placement.
+        widget_type: The tkinter widget class (e.g., tk.Label, tk.Button)
+        widget_config (list(dict)): A list of dictionaries, each containing the 
+            configuration for a widget.
+        widget_collection (dict): A dictionary in which created widgets will be stored,
+            beyed by their 'name'.
+
+    Side Effects:
+        Adds widgets to the GUI and stors them in widget_collection.
 
     Returns:
-        tk.Label: The created Label widget.
+        None
     """
-    
-    label = tk.Label(
-        master=master,
-        text=text,
-        font=font,
-        background=background,
-        foreground=foreground,
-    )
-    label.grid(**grid_options)
-    return label
-
-
-def _create_button(master, text, command, font=FONT_SMALL, background=None, activebackground=None, anchor=None, **grid_options):
-    """
-    Creates button widgets with the given options.
-
-    Args:
-        master (tk.Widget): The parent widget.
-        text (str): Text to display on the button.
-        command (function): The function to call when the button is clicked.
-        font (tuple): Font settings for the button. Defaults to FONT_SMALL.
-        background (str, optional): Background color.
-        activebackground (str, optional): Background color when active.
-        anchor (str, optional): Text alignment inside the button (e.g., 'w', 'center').
-        **grid_options: Additional keyword arguments for grid placement.
-
-    Returns:
-        tk.Button: The created button widget.
-    """
-    button = tk.Button(
-        master=master,
-        text=text,
-        command=command,
-        font=font,
-        background=background,
-        activebackground=activebackground,
-        anchor=anchor,
-    )
-    button.grid(**grid_options)
-    return button
+    for config in widget_config:
+        widget = widget_type(
+            master = config['master'],
+            font=config.get('font'),
+            text=config.get('text'),
+            background=config.get('background'),
+            foreground=config.get('foreground'),
+            activebackground=config.get('activebackground'),
+            anchor=config.get('anchor'),
+            command=config.get('command'),
+            
+        )
+        widget.grid(**config['grid'])
+        widget_collection[config['name']] = widget
 
 
 # Main window
@@ -729,19 +705,6 @@ label_configs = [
     },
 ]
 
-
-for config in label_configs:
-    label = _create_label(
-        master=config['master'],
-        font=config['font'],
-        text=config.get('text'),
-        background=config.get('background'),
-        foreground=config.get('foreground'),
-        **config['grid']
-    )
-    labels[config['name']] = label
-
-
 # Combobox
 var = tk.StringVar()
 combobox_generated_password = ttk.Combobox(
@@ -847,20 +810,6 @@ button_configs = [
     },
 ]
 
-
-for config in button_configs:
-    button = _create_button(
-        master=config['master'],
-        text=config['text'],
-        command=config['command'],
-        background=config.get('background'),
-        activebackground=config.get('activebackground'),
-        anchor=config.get('anchor'),
-        **config['grid'],
-    )
-    buttons[config['name']] = button
-
-
 # ProgressBar
 progress_var = tk.DoubleVar()
 progressbar_generated_password = ttk.Progressbar(
@@ -869,6 +818,10 @@ progressbar_generated_password = ttk.Progressbar(
     # variable=progress_var,
 )
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
+
+
+_create_widget(tk.Label, label_configs, labels)
+_create_widget(tk.Button, button_configs, buttons)
 
 
 window.mainloop()
