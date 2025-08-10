@@ -8,6 +8,14 @@ from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
 
 
+checkbox_variables = []
+password_option = {}
+password_list = []
+labelframes = {}
+buttons = {}
+labels = {}
+
+
 # Constants
 FONT_LARGE = ('Noto Sans', 20)
 FONT_MEDIUM = ('Noto Sans', 15)
@@ -40,13 +48,6 @@ PASSWORD_OPTION_RANGE_SIZE = {
     'symbol': 19, 
     'bracket': 8, 
 }
-
-
-checkbox_variables = []
-password_option = {}
-password_list = []
-buttons = {}
-labels = {}
 
 
 # Functions
@@ -500,8 +501,8 @@ def copy_to_clipboard() -> None:
     if show_copy_error_if_empty(generated_password):
         return
     
-    labelframe_generated_password.clipboard_clear()
-    labelframe_generated_password.clipboard_append(generated_password)
+    labelframes['labelframe_generated_password'].clipboard_clear()
+    labelframes['labelframe_generated_password'].clipboard_append(generated_password)
     
     show_copy_message()
 
@@ -597,38 +598,30 @@ window.configure(bg='#DFE4E8')
 
 
 # LabelFrames
-labelframe_settings = tk.LabelFrame(
-    master=window, 
-    text='Password settings', 
-    font=FONT_LARGE,
-)
-labelframe_settings.grid(row=2, column=0, columnspan=5, padx=(10, 10), pady=(10, 0), sticky='EW')
-
-labelframe_settings.columnconfigure(0, weight=1)
-labelframe_settings.columnconfigure(1, weight=1)
-labelframe_settings.columnconfigure(2, weight=1)
-
-
-labelframe_generated_password = tk.LabelFrame(
-    master=window,
-    text='Generated Password(s)',
-    font=FONT_LARGE,
-)
-labelframe_generated_password.grid(row=3, column=0, ipadx=120, ipady=5, padx=(10, 10), pady=(10, 10))
-
-
-labelframe_buttons = tk.LabelFrame(
-    master=window,
-)
-labelframe_buttons.grid(row=4, column=0, ipadx=15, ipady=0, padx=(10, 10), pady=(5, 10))
-
-
-# Style
-style = ttk.Style(labelframe_generated_password)
+labelframe_configs = [
+    {
+        'name': 'labelframe_settings',
+        'master': window, 
+        'text': 'Password settings', 
+        'font': FONT_LARGE, 
+        'grid': {'row':2, 'column':0, 'columnspan':5, 'padx':(10, 10), 'pady':(10, 0), 'sticky':'EW'}
+    },
+    {
+        'name': 'labelframe_generated_password',
+        'master': window,
+        'text': 'Generated Password(s)',
+        'font': FONT_LARGE,
+        'grid': {'row':3, 'column':0, 'ipadx':120, 'ipady':5, 'padx':(10, 10), 'pady':(10, 10)}
+    },
+    {
+        'name': 'labelframe_buttons',
+        'master': window,
+        'grid': {'row':4, 'column':0, 'ipadx':15, 'ipady':0, 'padx':(10, 10), 'pady':(5, 10)}
+    },
+]
 
 
 # Labels
-
 label_configs = [
     {
         'name': 'label_title',
@@ -650,49 +643,49 @@ label_configs = [
     },
     {
         'name': 'label_password_length',
-        'master': labelframe_settings,
+        'master': labelframes['labelframe_settings'],
         'text': 'Length of generated password: ',
         'font': FONT_SMALL,
         'grid': {'row':0, 'column':0, 'padx':(30, 0), 'pady':(30, 30), 'sticky':'w'},
     },
     {
         'name': 'label_password_length_numbers',
-        'master': labelframe_settings,
+        'master': labelframes['labelframe_settings'],
         'text': '(8 to 30 Chars)',
         'font': FONT_SMALL,
         'grid': {'row':0, 'column':2, 'padx':(0, 80), 'pady':(30, 30), 'sticky':'w'},
     },
     {
         'name': 'label_random_password',
-        'master': labelframe_generated_password,
+        'master': labelframes['labelframe_generated_password'],
         'text': 'Password: ',
         'font': FONT_MEDIUM,
         'grid': {'row':0, 'column':0, 'padx':20, 'pady':30, 'sticky':'E'},
     },
     {
         'name': 'label_password_strength',
-        'master': labelframe_generated_password,
+        'master': labelframes['labelframe_generated_password'],
         'text': 'Strength: ',
         'font': FONT_SMALL,
         'grid': {'row':1, 'column':0, 'pady':10},
     },
     {
         'name': 'label_show_strength',
-        'master': labelframe_generated_password,
+        'master': labelframes['labelframe_generated_password'],
         'font': FONT_BOLD,
         'grid': {'row':1, 'column':2,},
 
     },
     {
         'name': 'label_entropy_calc',
-        'master': labelframe_generated_password,
+        'master': labelframes['labelframe_generated_password'],
         'text': 'Total Entropy:',
         'font': FONT_SMALL,
         'grid': {'row':2, 'column':0, 'pady':10},
     },
     {
         'name': 'label_entropy_value',
-        'master': labelframe_generated_password,
+        'master': labelframes['labelframe_generated_password'],
         'font': FONT_BOLD,
         'grid': {'row':2, 'column':1, 'sticky':'w'},
     },
@@ -705,10 +698,69 @@ label_configs = [
     },
 ]
 
+
+# Buttons
+button_configs = [
+    {
+        'name': 'button_generate_password',
+        'master': labelframes['labelframe_settings'],
+        'text': 'Generate Password',
+        'command': on_generate_password_click,
+        'background': 'yellow', 
+        'activebackground': 'yellow',
+        'anchor': 'center',
+        'grid': {'row':6, 'column':1, 'pady':20, 'ipady':7, 'sticky':'W'}
+    },
+    {
+        'name': 'button_save',
+        'master': labelframes['labelframe_buttons'],
+        'text': 'Save Password',
+        'command': handle_save_password,
+        'grid': {'row':0, 'column':0, 'ipadx':15, 'ipady':10}
+    },
+    {
+        'name': 'button_copy_to_clipboard',
+        'master': labelframes['labelframe_buttons'],
+        'text': 'Copy to clipboard',
+        'command': copy_to_clipboard,
+        'grid': {'row':0, 'column':1, 'ipadx':15, 'ipady':10}
+    },
+    {
+        'name': 'button_clear',
+        'master': labelframes['labelframe_buttons'],
+        'text': 'Clear',
+        'command': reset_password_ui,
+        'grid': {'row':0, 'column':2, 'ipadx':25, 'ipady':10}
+    },
+    {
+        'name': 'button_about',
+        'master': labelframes['labelframe_buttons'],
+        'text': 'About',
+        'command': toggle_about_text,
+        'grid': {'row':0, 'column':3, 'ipadx':25, 'ipady':10}
+    },
+    {
+        'name': 'button_close',
+        'master': labelframes['labelframe_buttons'],
+        'text': 'Close',
+        'command': close_app,
+        'grid': {'row':0, 'column':4, 'ipadx':23, 'ipady':10}
+    },
+]
+
+
+for col in range(3):
+    labelframes['labelframe_settings'].columnconfigure(col, weight=1)
+
+
+# Style
+style = ttk.Style(labelframes['labelframe_generated_password'])
+
+
 # Combobox
 var = tk.StringVar()
 combobox_generated_password = ttk.Combobox(
-    master=labelframe_generated_password,
+    master=labelframes['labelframe_generated_password'],
     width=28,
     font=FONT_MEDIUM,
     values=password_list,
@@ -740,7 +792,7 @@ for index, (text, checkbox_var) in enumerate(checkbox_options.items()):
     row = index // 2
     col = index % 2
     cb = tk.Checkbutton(
-        master=labelframe_settings,
+        master=labelframes['labelframe_settings'],
         text=text,
         variable=vars,
         font=('Noto Sans', 10),
@@ -751,7 +803,7 @@ for index, (text, checkbox_var) in enumerate(checkbox_options.items()):
 # Spinbox
 
 spinbox_password_length = tk.Spinbox(
-    master=labelframe_settings, 
+    master=labelframes['labelframe_settings'], 
     from_=8, 
     to=30, 
     width=20,
@@ -759,61 +811,10 @@ spinbox_password_length = tk.Spinbox(
 )
 spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, sticky='w')
 
-
-# Buttons
-
-button_configs = [
-    {
-        'name': 'button_generate_password',
-        'master': labelframe_settings,
-        'text': 'Generate Password',
-        'command': on_generate_password_click,
-        'background': 'yellow', 
-        'activebackground': 'yellow',
-        'anchor': 'center',
-        'grid': {'row':6, 'column':1, 'pady':20, 'ipady':7, 'sticky':'W'}
-    },
-    {
-        'name': 'button_save',
-        'master': labelframe_buttons,
-        'text': 'Save Password',
-        'command': handle_save_password,
-        'grid': {'row':0, 'column':0, 'ipadx':15, 'ipady':10}
-    },
-    {
-        'name': 'button_copy_to_clipboard',
-        'master': labelframe_buttons,
-        'text': 'Copy to clipboard',
-        'command': copy_to_clipboard,
-        'grid': {'row':0, 'column':1, 'ipadx':15, 'ipady':10}
-    },
-    {
-        'name': 'button_clear',
-        'master': labelframe_buttons,
-        'text': 'Clear',
-        'command': reset_password_ui,
-        'grid': {'row':0, 'column':2, 'ipadx':25, 'ipady':10}
-    },
-    {
-        'name': 'button_about',
-        'master': labelframe_buttons,
-        'text': 'About',
-        'command': toggle_about_text,
-        'grid': {'row':0, 'column':3, 'ipadx':25, 'ipady':10}
-    },
-    {
-        'name': 'button_close',
-        'master': labelframe_buttons,
-        'text': 'Close',
-        'command': close_app,
-        'grid': {'row':0, 'column':4, 'ipadx':23, 'ipady':10}
-    },
-]
-
 # ProgressBar
 progress_var = tk.DoubleVar()
 progressbar_generated_password = ttk.Progressbar(
-    master=labelframe_generated_password,
+    master=labelframes['labelframe_generated_password'],
     style='strength.Horizontal.TProgressbar',
     # variable=progress_var,
 )
@@ -822,6 +823,7 @@ progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SN
 
 _create_widget(tk.Label, label_configs, labels)
 _create_widget(tk.Button, button_configs, buttons)
+_create_widget(tk.LabelFrame, labelframe_configs, labelframes)
 
 
 window.mainloop()
