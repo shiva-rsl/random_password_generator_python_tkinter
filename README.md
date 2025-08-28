@@ -2,11 +2,18 @@
 <h1 align='center'> Random Password Generator - Python Tkinter </h1>
 
 <p align='center'>
-<img src="https://img.shields.io/badge/Language-Python-blue" />
-<img src="https://img.shields.io/badge/Interface-GUI-orange" />
+<img src="https://img.shields.io/badge/status-complete-red" />
+<img src="https://img.shields.io/badge/Language-Python-03A9F4" /> 
+<img src="https://img.shields.io/badge/Python%20Version-3.10-blueviolet" />
 <img src="https://img.shields.io/badge/Built%20With-Tkinter-brightgreen" />
-<img src="https://img.shields.io/badge/Built%20With-Tkinter-blueviolet" />
+<img src="https://img.shields.io/badge/Interface-GUI%20%7C%20CLI-darkblue" />
+<img src="https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20Mac-795548" /> 
+<img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white" />
+<img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" />
+<img src="https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white" />
 <img src="https://img.shields.io/badge/License-MIT-yellow" />
+<img src="https://img.shields.io/badge/Last%20Updated-August%202025-FF5722" /> 
+
 </p>
 
 

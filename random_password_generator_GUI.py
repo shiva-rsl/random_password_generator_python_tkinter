@@ -4,35 +4,22 @@ import math
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from random_password_generator_CLI import *
 from tkinter.filedialog import asksaveasfile
+from random_password_generator_CLI import *
 
+# ----------------------------- Constants ----------------------------- #
 
-checkbox_variables = []
-checkbox_configs = []
-password_list = []
-
-password_option = {}
-labelframes = {}
-checkboxes = {}
-buttons = {}
-labels = {}
-
-
-# Constants
+# Fonts
 FONT_LARGE = ('Noto Sans', 20)
 FONT_MEDIUM = ('Noto Sans', 15)
 FONT_NORMAL = ('Noto Sans', 12)
 FONT_SMALL = ('Noto Sans', 10)
 FONT_BOLD = ('Noto Sans', 12, 'bold')
 
+# Colors
+SOFTWARE_COLOR_BACKGROUND = '#DFE4E8'
 COLOR_BACKGROUND = "#000000"
 COLOR_FORGROUND = "#F0CF28"
-
-ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
-    unpredictable passwords through an optional mix of lowercase and uppercase letters,
-    numbers and special characters.'''
-
 STRENGTH_COLORS = {
     'very_weak': "#f01010",
     'weak': "#ed761c",
@@ -41,6 +28,12 @@ STRENGTH_COLORS = {
     'perfect': "#06be06"
 }
 
+ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
+    unpredictable passwords through an optional mix of lowercase and uppercase letters,
+    numbers and special characters.'''
+
+
+# Password option ranges
 PASSWORD_OPTION_RANGE_SIZE = {    
     'uppercase': 26, 
     'lowercase': 26, 
@@ -52,8 +45,18 @@ PASSWORD_OPTION_RANGE_SIZE = {
     'bracket': 8, 
 }
 
+# Globals
+checkbox_variables = []
+checkbox_configs = []
+password_list = []
+password_option = {}
+labelframes = {}
+checkboxes = {}
+buttons = {}
+labels = {}
 
-# Functions
+
+# ----------------------------- Utility Functions ----------------------------- #
 
 def clear_screen() -> None:
     """
@@ -176,9 +179,7 @@ def calculate_password_range() -> int:
     password_features = analyze_selected_password()
     
     for key, value in password_features.items():
-        if key == 'password_length':
-            continue
-        if value:
+        if key != 'password_length' and value:
             password_range += PASSWORD_OPTION_RANGE_SIZE.get(key, 0)
 
     return password_range
@@ -287,7 +288,7 @@ def get_password_options_from_user() -> None:
         password_option[checkbox_name.lower()] = variable_value
 
 
-def generate_password() -> None:
+def generate_password() -> str:
     """
     Generates a random password based on the options selected by the user.
 
@@ -296,10 +297,11 @@ def generate_password() -> None:
         - Appends the generated password to the global `password_list`.
 
     Returns:
-        None
+        str: The newely generated password.
     """
     generated_password = random_password_generator(password_option)
     password_list.append(generated_password)
+    return generated_password
 
 
 def show_generated_password_in_combobox() -> None:
@@ -589,16 +591,19 @@ def _create_widget(widget_type, widget_config_list, widget_collection):
         widget_collection[widget_name] = widget
 
 
-# Main window
+# ----------------------------- GUI Initialization ----------------------------- #
+
 window = tk.Tk()
+window.title('Random Password Generator App')
+window.config(bg=SOFTWARE_COLOR_BACKGROUND)
 window.geometry('700x840')
 window.resizable(width=False, height=False)
-window.title('Random Password Generator App')
+
 
 window.columnconfigure(0, weight=1)
 window.columnconfigure(1, weight=2)
 window.columnconfigure(2, weight=1)
-window.configure(bg='#DFE4E8')
+
 
 
 # LabelFrames
@@ -760,22 +765,6 @@ button_configs = [
 ]
 
 
-# Style
-style = ttk.Style(labelframes['labelframe_generated_password'])
-
-
-# Combobox
-var = tk.StringVar()
-combobox_generated_password = ttk.Combobox(
-    master=labelframes['labelframe_generated_password'],
-    width=28,
-    font=FONT_MEDIUM,
-    values=password_list,
-    textvariable=var,
-)
-combobox_generated_password.grid(row=0, column=1, padx=5)
-combobox_generated_password.bind("<<ComboboxSelected>>", update_password_strength_display)
-
 
 # Checkboxs
 
@@ -814,6 +803,23 @@ for i, text in enumerate(checkbox_text):
     checkbox_configs.append(config)
 
 
+# Style
+style = ttk.Style(labelframes['labelframe_generated_password'])
+
+
+# Combobox
+var = tk.StringVar()
+combobox_generated_password = ttk.Combobox(
+    master=labelframes['labelframe_generated_password'],
+    width=28,
+    font=FONT_MEDIUM,
+    values=password_list,
+    textvariable=var,
+)
+combobox_generated_password.grid(row=0, column=1, padx=5)
+combobox_generated_password.bind("<<ComboboxSelected>>", update_password_strength_display)
+
+
 # Spinbox
 spinbox_password_length = tk.Spinbox(
     master=labelframes['labelframe_settings'], 
@@ -824,12 +830,12 @@ spinbox_password_length = tk.Spinbox(
 )
 spinbox_password_length.grid(row=0, column=1, pady=(30, 30), ipadx=10, ipady=5, sticky='w')
 
+
 # ProgressBar
 progress_var = tk.DoubleVar()
 progressbar_generated_password = ttk.Progressbar(
     master=labelframes['labelframe_generated_password'],
     style='strength.Horizontal.TProgressbar',
-    # variable=progress_var,
 )
 progressbar_generated_password.grid(row=1, column=1, padx=5, pady=10, sticky='SNEW') 
 
