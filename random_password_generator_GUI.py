@@ -7,6 +7,7 @@ from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
 from random_password_generator_CLI import *
 
+
 # ----------------------------- Constants ----------------------------- #
 
 # Fonts
@@ -70,7 +71,10 @@ def clear_screen() -> None:
     except Exception:
         print('\n' * 100)
 
+
+
 clear_screen()
+
 
 def show_checkbox_error_message() -> None:
     """
@@ -117,11 +121,11 @@ def set_password_length() -> None:
     Sets the password length in the `password_option` dictionary if valid.
     Raises a ValueError if is invalid.
 
-    Raises:
-        ValueError: If the password length is invalid (e.g., below minimum or above maximum allowed).
-
     Side Effects:
         Updates global `password_option` if valid.
+
+    Raises:
+        ValueError: If the password length is invalid (e.g., below minimum or above maximum allowed).
 
     Returns:
         None
@@ -185,6 +189,7 @@ def calculate_password_range() -> int:
     return password_range
 
 
+
 def calculate_password_entropy() -> float:
     """
     Calculates the entropy of a password based on its length and character diversity.
@@ -218,6 +223,7 @@ def show_password_entropy(*args) -> None:
     """
     password_entropy_value = calculate_password_entropy()
     labels['label_entropy_value'].config(text=f'{password_entropy_value:.2f} bits')
+
 
 
 def evaluate_password_strength(password_entropy: float) -> dict:
@@ -331,7 +337,6 @@ def show_password_strength_in_progressbar() -> None:
         None
     """
     strength, _, color = calculate_password_strength()
-    
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password.config(value=strength)
 
