@@ -6,7 +6,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
 from random_password_generator_CLI import *
-
+from utils import *
 
 # ----------------------------- Constants ----------------------------- #
 
@@ -21,30 +21,10 @@ FONT_BOLD = ('Noto Sans', 12, 'bold')
 SOFTWARE_COLOR_BACKGROUND = '#DFE4E8'
 COLOR_BACKGROUND = "#000000"
 COLOR_FORGROUND = "#F0CF28"
-STRENGTH_COLORS = {
-    'very_weak': "#f01010",
-    'weak': "#ed761c",
-    'fair': "#EFE63E",
-    'strong': "#e52bf2",
-    'perfect': "#06be06"
-}
 
 ABOUT_TEXT = '''The Random Password Generator enables you to generate secure and highly
     unpredictable passwords through an optional mix of lowercase and uppercase letters,
     numbers and special characters.'''
-
-
-# Password option ranges
-PASSWORD_OPTION_RANGE_SIZE = {    
-    'uppercase': 26, 
-    'lowercase': 26, 
-    'digit': 10, 
-    'minus': 1, 
-    'underline': 1, 
-    'space': 1, 
-    'symbol': 19, 
-    'bracket': 8, 
-}
 
 # Globals
 checkbox_variables = []
@@ -58,20 +38,6 @@ labels = {}
 
 
 # ----------------------------- Utility Functions ----------------------------- #
-
-def clear_screen() -> None:
-    """
-    Clears the terminal screen.
-
-    Uses 'cls' command on Windows and 'clear' on Unix-based systems.
-    If the command fails, it prints multiple newlines as a fallback.
-    """
-    try:
-        os.system('cls' if os.name == 'nt' else 'clear')
-    except Exception:
-        print('\n' * 100)
-
-
 
 clear_screen()
 
@@ -103,19 +69,6 @@ def get_spinbox_password_length() -> int | None:
     return int(spinbox_password_length.get())
 
 
-def is_valid_password_length(password_length: int) -> bool:
-    """
-    Checks if the password length is valid (between 8 and 30).
-
-    Args:
-        `password_length` (int): The length to validate.
-
-    Returns:
-        bool: True if valid, otherwise False.
-    """
-    return MIN_PASSWORD_LENGTH <= password_length <= MAX_PASSWORD_LENGTH
-
-
 def set_password_length() -> None:
     """
     Sets the password length in the `password_option` dictionary if valid.
@@ -136,79 +89,6 @@ def set_password_length() -> None:
     password_option['password_length'] = password_length
 
 
-def get_selected_password_length() -> int:
-    """
-    Evaluates the length of selected password from the combobox.
-    
-    Returns:
-        int: Length of the selected password.
-    """
-    selection_password = combobox_generated_password.get()
-    return len(selection_password)
-
-
-def analyze_selected_password() -> dict:
-    """
-    Analyzes the selected password from the combobox and returns a dictionary of its features.
-
-    Returns:
-        dict: A dictionary indicating the presence of character types and password length.
-    """
-    
-    selected_password = combobox_generated_password.get()
-    length = get_selected_password_length()
-    
-    return {
-        'password_length': length,
-        'uppercase': bool(re.search(r"[A-Z]", selected_password)),
-        'lowercase': bool(re.search(r"[a-z]", selected_password)),
-        'digit': bool(re.search(r"[0-9]", selected_password)),
-        'minus': bool(re.search(r"-", selected_password)),
-        'underline': bool(re.search(r"_", selected_password)),
-        'space': bool(re.search(r"\s", selected_password)),
-        'symbol': bool(re.search(r"[!?@#$%&*^~/|:;.,'\"']", selected_password)),
-        'bracket': bool(re.search(r"[{}\[\]()<>]", selected_password)),
-    }
-
-
-def calculate_password_range() -> int:
-    """
-    Calculates the total size of the character set based on selected password options.
-
-    Returns:
-        int: Total character set size for entropy calculation.
-    """
-    
-    password_range = 0
-    password_features = analyze_selected_password()
-    
-    for key, value in password_features.items():
-        if key != 'password_length' and value:
-            password_range += PASSWORD_OPTION_RANGE_SIZE.get(key, 0)
-
-    return password_range
-
-
-
-def calculate_password_entropy() -> float:
-    """
-    Calculates the entropy of a password based on its length and character diversity.
-
-    The entropy is calculated using the formula: 
-        entropy = length * log2(character_pool_size)
-    where `character_pool_size` is determined by `calculate_password_range()`.
-
-    Returns:
-        float: The calculated password entropy in bits. A higher value indicates a stronger password.
-    """
-
-    password_length = get_selected_password_length()
-
-    password_pool_size = calculate_password_range()
-    entropy = password_length * math.log2(password_pool_size)
-    return entropy
-
-
 def show_password_entropy(*args) -> None:
     """
     Calculates and displays the password entropy in the GUI label.
@@ -221,43 +101,9 @@ def show_password_entropy(*args) -> None:
     Returns:
         None
     """
-    password_entropy_value = calculate_password_entropy()
+    selected_password = combobox_generated_password.get()
+    password_entropy_value = calculate_password_entropy(selected_password)
     labels['label_entropy_value'].config(text=f'{password_entropy_value:.2f} bits')
-
-
-
-def evaluate_password_strength(password_entropy: float) -> dict:
-    """
-    Evaluates the strength of a password based on its entropy.
-
-    Args:
-        `password_entropy` (float): The entropy value of the password.
-
-    Returns:
-        dict: A dictionary containing the score, label and color representing the strength.
-    """
-    if password_entropy < 28:
-        return {'score': 10, 'label': '🔴 Very Weak', 'color': STRENGTH_COLORS['very_weak']}
-    elif password_entropy < 36:
-        return {'score': 30, 'label': '🟠 Weak', 'color': STRENGTH_COLORS['weak']}
-    elif password_entropy < 60:
-        return {'score': 55, 'label': '🟡 Fair', 'color': STRENGTH_COLORS['fair']}
-    elif password_entropy < 128:
-        return {'score': 80, 'label': '🟣 Strong', 'color': STRENGTH_COLORS['strong']}
-    else:
-        return {'score': 100, 'label': '🟢 Perfect', 'color': STRENGTH_COLORS['perfect']}
-
-
-def calculate_password_strength() -> tuple[int, str, str]:
-    """
-    Calculates the strength of a password.
-
-    Returns:
-        tuple: A tuple containing the `score` (int), `label` (str) and `color` (str) representing the password strength.
-    """
-    password_entropy = calculate_password_entropy()
-    strength_date = evaluate_password_strength(password_entropy)
-    return strength_date['score'], strength_date['label'], strength_date['color']
 
 
 def update_password_strength_label() -> None:
@@ -273,7 +119,8 @@ def update_password_strength_label() -> None:
     Returns:
         None
     """
-    _, strength_level, strength_color  = calculate_password_strength()
+    selected_password = combobox_generated_password.get()
+    _, strength_level, strength_color  = calculate_password_strength(selected_password)
     labels['label_show_strength'].config(text=strength_level, fg=strength_color)
 
 
@@ -336,7 +183,8 @@ def show_password_strength_in_progressbar() -> None:
     Returns:
         None
     """
-    strength, _, color = calculate_password_strength()
+    selected_password = combobox_generated_password.get()
+    strength, _, color = calculate_password_strength(selected_password)
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password.config(value=strength)
 
@@ -770,9 +618,7 @@ button_configs = [
 ]
 
 
-
 # Checkboxs
-
 checkbox_text = [
     'Uppercase (A, B, C, ...)',
     'Lowercase (a, b, c, ...)',

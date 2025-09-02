@@ -1,11 +1,12 @@
 import os
 import re
+import math
 import random
 import string
 from typing import Sequence, TypedDict
 
 
-# Variables
+# ----------------------------- Constants ----------------------------- #
 BORDER = '*' * 20
 DIGITS = '0123456789'
 SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'"""
@@ -14,6 +15,26 @@ MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 30
 DEFAULT_PASSWORD_LENGTH = 8
 
+# Password option ranges
+PASSWORD_OPTION_RANGE_SIZE = {    
+    'uppercase': 26, 
+    'lowercase': 26, 
+    'digit': 10, 
+    'minus': 1, 
+    'underline': 1, 
+    'space': 1, 
+    'symbol': 19, 
+    'bracket': 8, 
+}
+
+# Colors
+STRENGTH_COLORS = {
+    'very_weak': "#f01010",
+    'weak': "#ed761c",
+    'fair': "#EFE63E",
+    'strong': "#e52bf2",
+    'perfect': "#06be06"
+}
 
 
 class PasswordSettings(TypedDict):
@@ -151,4 +172,156 @@ def random_password_generator(settings: PasswordSettings) -> str:
         password_chars.append(generated_password_char(enabled_char_types))
 
     return ''.join(password_chars)
+
+
+
+# ----------------------------- GUI functions ----------------------------- #
+
+def is_valid_password_length(password_length: int) -> bool:
+    """
+    Checks if the password length is valid (between 8 and 30).
+
+    Args:
+        `password_length` (int): The length to validate.
+
+    Returns:
+        bool: True if valid, otherwise False.
+    """
+    return MIN_PASSWORD_LENGTH <= password_length <= MAX_PASSWORD_LENGTH
+
+
+def get_selected_password_length(password: str) -> int:
+    """
+    Evaluates the length of a given password.
+    
+    Args:
+        password (str): The password to evaluate.
+
+    Returns:
+        int: The number of character in the password.
+    """
+
+    return len(password)
+
+
+def analyze_selected_password(password: str) -> dict:
+    """
+    Analyzes a password to detect its characteristics.
+
+    This function inspects the password for the presence of different 
+    character types (uppercase, lowercase, digits, symbols, etc.) and 
+    also records its length. The result is used in entropy and strength 
+    calculations.
+
+    Args:
+        password (str): The password to evaluate.
+
+    Returns:
+        dict: A dictionary indicating the presence of character types and password length.
+    """
+    
+    # selected_password = combobox_generated_password.get()
+    length = get_selected_password_length(password)
+    
+    return {
+        'password_length': length,
+        'uppercase': bool(re.search(r"[A-Z]", password)),
+        'lowercase': bool(re.search(r"[a-z]", password)),
+        'digit': bool(re.search(r"[0-9]", password)),
+        'minus': bool(re.search(r"-", password)),
+        'underline': bool(re.search(r"_", password)),
+        'space': bool(re.search(r"\s", password)),
+        'symbol': bool(re.search(r"[!?@#$%&*^~/|:;.,'\"']", password)),
+        'bracket': bool(re.search(r"[{}\[\]()<>]", password)),
+    }
+
+
+def calculate_password_range(password: str) -> int:
+    """
+    Determines the effective size of the character set used in a password.
+
+    This function analyzes the given password to detect which character groups 
+    (e.g., lowercase letters, uppercase letters, digits, symbols) are present.
+    It then sums the predefined range sizes for each detected group.
+
+    Args:
+        password (str): The password to evaluate.
+
+    Returns:
+        int: Total character set size for entropy calculation.
+    """
+    
+    password_range = 0
+    password_features = analyze_selected_password(password)
+    
+    for key, value in password_features.items():
+        if key != 'password_length' and value:
+            password_range += PASSWORD_OPTION_RANGE_SIZE.get(key, 0)
+
+    return password_range
+
+
+def calculate_password_entropy(password: str) -> float:
+    """
+    Calculates the entropy of a password based on its length and character diversity.
+
+    The entropy is calculated using the formula: 
+        entropy = password_length * log2(character_pool_size)
+
+    - `password_length` is obtained via `get_selected_password_length(password)`
+    - `character_pool_size` is determined by `calculate_password_range(password)`.
+
+    Args:
+        password (str): The password to be evaluated.
+
+    Returns:
+        float: The calculated password entropy in bits. A higher value indicates a stronger password.
+    """
+
+    password_length = get_selected_password_length(password)
+
+    password_pool_size = calculate_password_range(password)
+    entropy = password_length * math.log2(password_pool_size)
+    return entropy
+
+
+def evaluate_password_strength(password_entropy: float) -> dict:
+    """
+    Evaluates the strength of a password based on its entropy.
+
+    Args:
+        `password_entropy` (float): The entropy value of the password.
+
+    Returns:
+        dict: A dictionary containing the score, label and color representing the strength.
+    """
+    if password_entropy < 28:
+        return {'score': 10, 'label': '🔴 Very Weak', 'color': STRENGTH_COLORS['very_weak']}
+    elif password_entropy < 36:
+        return {'score': 30, 'label': '🟠 Weak', 'color': STRENGTH_COLORS['weak']}
+    elif password_entropy < 60:
+        return {'score': 55, 'label': '🟡 Fair', 'color': STRENGTH_COLORS['fair']}
+    elif password_entropy < 128:
+        return {'score': 80, 'label': '🟣 Strong', 'color': STRENGTH_COLORS['strong']}
+    else:
+        return {'score': 100, 'label': '🟢 Perfect', 'color': STRENGTH_COLORS['perfect']}
+
+
+def calculate_password_strength(password: str) -> tuple[int, str, str]:
+    """
+    Calculates the strength of a given password.
+
+    Args:
+        password (str): The Password to be evaluated.
+
+    Returns:
+        tuple[int, str, str]: A tuple containing:
+            - score (int): Numerical strength score.
+            - label (str): Human-readable description of strength (e.g., 'weak', 'strong')
+            - color (str): Suggested color code for UI display.
+    """
+    password_entropy = calculate_password_entropy(password)
+    strength_date = evaluate_password_strength(password_entropy)
+    return strength_date['score'], strength_date['label'], strength_date['color']
+
 
