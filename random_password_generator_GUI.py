@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
+from typing import Type, Dict, List, Any
 from utils import *
 
 # ----------------------------- Constants ----------------------------- #
@@ -242,7 +243,7 @@ def on_generate_password_click() -> None:
         show_invalid_password_length_message()
 
 
-def save_password_to_file(password: str) -> None:
+def save_password_to_file() -> None:
     """
     Prompts the user with a file save dialog and writes the given password.
     
@@ -303,7 +304,7 @@ def handle_save_password() -> None:
     """
     generated_password = var.get()
     if show_save_error_if_empty(generated_password):
-        save_password_to_file(generate_password)
+        save_password_to_file()
     
 
 def show_copy_error_if_empty(generated_password: str) -> bool:
@@ -413,7 +414,11 @@ def close_app() -> None:
         window.destroy()
 
 
-def _create_widget(widget_type, widget_config_list, widget_collection):
+def _create_widget(
+    widget_type: Type[tk.Widget],
+    widget_config_list: List[Dict[str, Any]],
+    widget_collection: Dict[str, tk.Widget]
+) -> None:
     """
     Creates and places tkinter widgets based on a list of configurations.
 
