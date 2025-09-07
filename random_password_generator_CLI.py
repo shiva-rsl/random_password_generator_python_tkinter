@@ -1,8 +1,19 @@
+from colorama import Fore, Style, init
 from utils import *
+
+
+init(autoreset=True)
 
 
 # ----------------------------- Constants ----------------------------- #
 BORDER = '*' * 20
+COLOR_MAP = {
+    'Very Weak': Fore.RED,
+    'Weak': Fore.LIGHTRED_EX,
+    'Fair': Fore.YELLOW,
+    'Strong': Fore.MAGENTA,
+    'Perfect': Fore.GREEN,
+}
 
 
 # ----------------------------- Functions ----------------------------- #
@@ -170,8 +181,27 @@ def generate_password_with_metrics(settings: PasswordSettings) -> tuple[str, flo
     """
     password = get_generated_password(settings)
     entropy = calculate_password_entropy(password)
-    _, strength_label, _ = calculate_password_strength(password)
+    _, strength_label, _= calculate_password_strength(password)
     return password, entropy, strength_label
+
+
+def colorize_strength(strength_label: str) -> str:
+    """
+    Apply a color to the password strength label for console display.
+
+    Args:
+        strength_label (str): 
+            The strength label of the generated password
+            (e.g., 'Very Weak', 'Weak', 'Fair', 'Strong', 'Perfect').
+    
+    Returns:
+        str: The colorized label if a matching strength is found,
+            otherwise the original unmodified label.
+    """
+    for key, color in COLOR_MAP.items():
+        if key.lower() in strength_label.lower():
+            return f'{color}{strength_label}{Style.RESET_ALL}'
+    return strength_label
 
 
 def print_generated_password_entropy_strength(settings: PasswordSettings) -> None:
@@ -186,9 +216,10 @@ def print_generated_password_entropy_strength(settings: PasswordSettings) -> Non
         None
     """
     password, entropy, strength = generate_password_with_metrics(settings)
+    strength_label = colorize_strength(strength)
     print(BORDER)
     print(f"Generated password : {password}")
-    print(f"Strength           : {strength}")
+    print(f"Strength           : {strength_label}")
     print(f"Entropy            : {entropy:.2f} bits")
     print(BORDER)
 
