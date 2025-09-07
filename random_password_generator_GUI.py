@@ -1,11 +1,8 @@
-import os
 import re
-import math
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfile
-from random_password_generator_CLI import *
 from utils import *
 
 # ----------------------------- Constants ----------------------------- #

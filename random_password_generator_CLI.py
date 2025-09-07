@@ -1,10 +1,11 @@
-import os
-import random
-import string
 from utils import *
 
 
+# ----------------------------- Constants ----------------------------- #
+BORDER = '*' * 20
 
+
+# ----------------------------- Functions ----------------------------- #
 def ask_if_change_settings(settings: PasswordSettings) -> None:
     
     """
@@ -44,7 +45,6 @@ def ask_if_change_settings(settings: PasswordSettings) -> None:
                   "'n' for no, or press Enter to accept the default.")
             
 
-
 def get_user_password_length(option: str, default: int,
                             min_length: int = MIN_PASSWORD_LENGTH, 
                             max_length: int = MAX_PASSWORD_LENGTH) -> int:
@@ -82,7 +82,6 @@ def get_user_password_length(option: str, default: int,
               'Please try again.')
 
 
-
 def get_user_password_settings(option: str, default: bool) -> bool:
     
     """
@@ -116,7 +115,6 @@ def get_user_password_settings(option: str, default: bool) -> bool:
         print("Invalid input! Please enter 'y' or 'n'.")
 
 
-
 def get_password_settings(settings: PasswordSettings) -> None:
     
     """
@@ -128,7 +126,7 @@ def get_password_settings(settings: PasswordSettings) -> None:
 
     Args:
         settings (PasswordSettings): 
-            A dictionary of password settings with option names as keys and their default values.
+            A dictionary of password settings with option names as keys.
 
     Returns:
         None: modifies the dictionary in-place.
@@ -142,28 +140,57 @@ def get_password_settings(settings: PasswordSettings) -> None:
             settings[option] = get_user_password_settings(option, default)
 
 
-def print_generated_password(settings: PasswordSettings) -> None:
-
+def get_generated_password(settings: PasswordSettings) -> str:
     """
-    Generate and display a random password with a decorative border.
+    Generate a random password.
+    
+    Args:
+        settings (PasswordSettings): 
+            A dictionary of password settings with option names as keys.
+    
+    Returns:
+        str: The generated random password.
+    """
+    return random_password_generator(settings)
 
-    This function generates a password based on the provided settings 
-    and prints it to the console, wrapped with a decorative border for 
-    improved readability.
+
+def generate_password_with_metrics(settings: PasswordSettings) -> tuple[str, float, str]:
+    """
+    Generate a password along with its entropy and strength label.
 
     Args:
         settings (PasswordSettings): 
-            An object containing the user-defined settings for password generation.
+            A dictionary of password settings with option names as keys.
+    
+    Returns:
+        tuple: A tuple containing:
+            - str: The generated password
+            - float: The password entropy in bits
+            - str: The password strength label
+    """
+    password = get_generated_password(settings)
+    entropy = calculate_password_entropy(password)
+    _, strength_label, _ = calculate_password_strength(password)
+    return password, entropy, strength_label
 
+
+def print_generated_password_entropy_strength(settings: PasswordSettings) -> None:
+    """
+    Print a generated password along with its entropy and strength to the console. 
+
+    Args:
+        settings (PasswordSettings): 
+            A dictionary of password settings with option names as keys.
+    
     Returns:
         None
     """
-
+    password, entropy, strength = generate_password_with_metrics(settings)
     print(BORDER)
-    password = random_password_generator(settings)
-    print(f'Generated password: {password}')
+    print(f"Generated password : {password}")
+    print(f"Strength           : {strength}")
+    print(f"Entropy            : {entropy:.2f} bits")
     print(BORDER)
-    
 
 
 def regenerate_random_password(settings: PasswordSettings) -> None:
@@ -186,7 +213,7 @@ def regenerate_random_password(settings: PasswordSettings) -> None:
         user_input = input(prompt).strip().lower()
 
         if user_input in valid_yes:
-            print_generated_password(settings)
+            print_generated_password_entropy_strength(settings)
 
         elif user_input == valid_no:
             print('Password generator session ended. Goodbye!')
@@ -195,7 +222,6 @@ def regenerate_random_password(settings: PasswordSettings) -> None:
         else:
             print("Invalid input! Please enter 'y' or 'n'.")
             
-
 
 def run(settings: PasswordSettings) -> None:
     """
@@ -216,7 +242,7 @@ def run(settings: PasswordSettings) -> None:
 
     clear_screen()
     ask_if_change_settings(settings)
-    print_generated_password(settings)
+    print_generated_password_entropy_strength(settings)
     regenerate_random_password(settings)
     
 

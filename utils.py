@@ -7,7 +7,6 @@ from typing import Sequence, TypedDict
 
 
 # ----------------------------- Constants ----------------------------- #
-BORDER = '*' * 20
 DIGITS = '0123456789'
 SYMBOLS = """!?@#$%&*^~/\|+=:;.,"'"""
 BRACKETS = '[]{}()<>'
@@ -77,11 +76,9 @@ def clear_screen() -> None:
         print('\n' * 100)
 
 
-
 def generate_upper_case_char() -> str:
     """Return a random uppercase ASCII letter."""
     return random.choice(string.ascii_uppercase)
-
 
 
 def generate_lower_case_char() -> str:
@@ -89,17 +86,14 @@ def generate_lower_case_char() -> str:
     return random.choice(string.ascii_lowercase)
 
 
-
 def generate_digit() -> str:
     """Return a random digit character from the DIGITS string."""
     return random.choice(DIGITS)
 
 
-
 def generate_symbol() -> str:
     """Return a random symbol character from the SYMBOLS string."""
     return random.choice(SYMBOLS)
-
 
 
 def generate_bracket() -> str:
@@ -145,7 +139,6 @@ def generated_password_char(settings: Sequence[str]) -> str:
     return generator_func()
 
 
-
 def random_password_generator(settings: PasswordSettings) -> str:
     """
     Generates a random password based on the given settings.
@@ -173,9 +166,6 @@ def random_password_generator(settings: PasswordSettings) -> str:
 
     return ''.join(password_chars)
 
-
-
-# ----------------------------- GUI functions ----------------------------- #
 
 def is_valid_password_length(password_length: int) -> bool:
     """
@@ -323,5 +313,3 @@ def calculate_password_strength(password: str) -> tuple[int, str, str]:
     password_entropy = calculate_password_entropy(password)
     strength_date = evaluate_password_strength(password_entropy)
     return strength_date['score'], strength_date['label'], strength_date['color']
-
-
