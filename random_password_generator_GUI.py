@@ -89,6 +89,11 @@ def set_password_length() -> None:
     password_option['password_length'] = password_length
 
 
+def get_selected_password() -> str:
+    """Fetch the latest selected password from the combobox."""
+    return combobox_generated_password.get()
+
+
 def show_password_entropy(*args) -> None:
     """
     Calculates and displays the password entropy in the GUI label.
@@ -101,7 +106,7 @@ def show_password_entropy(*args) -> None:
     Returns:
         None
     """
-    selected_password = combobox_generated_password.get()
+    selected_password = get_selected_password()
     password_entropy_value = calculate_password_entropy(selected_password)
     labels['label_entropy_value'].config(text=f'{password_entropy_value:.2f} bits')
 
@@ -119,7 +124,7 @@ def update_password_strength_label() -> None:
     Returns:
         None
     """
-    selected_password = combobox_generated_password.get()
+    selected_password = get_selected_password()
     _, strength_level, strength_color  = calculate_password_strength(selected_password)
     labels['label_show_strength'].config(text=strength_level, fg=strength_color)
 
@@ -183,7 +188,7 @@ def show_password_strength_in_progressbar() -> None:
     Returns:
         None
     """
-    selected_password = combobox_generated_password.get()
+    selected_password = get_selected_password()
     strength, _, color = calculate_password_strength(selected_password)
     style.configure('strength.Horizontal.TProgressbar', background=color)
     progressbar_generated_password.config(value=strength)
