@@ -9,6 +9,11 @@ init(autoreset=True)
 BORDER = '*' * 20
 VALID_YES = {'y', ''}
 VALID_NO = 'n'
+MESSAGE_COLORS = {
+    'prompt': Fore.CYAN,
+    'error': Fore.RED,
+    'end': Fore.GREEN,
+}
 COLOR_MAP = {
     'Very Weak': Fore.RED,
     'Weak': Fore.LIGHTRED_EX,
@@ -22,21 +27,18 @@ COLOR_MAP = {
 
 def colorize_outputs(message_type: str, message_text: str) -> str:
     """
-    Colorize the outputs
+    Return a colorize version of a given message based on its type.
     
     Args:
-        message_type (str):
-        message_text (str):
+        message_type (str): The type of message, expected values are
+            'prompt', 'error', or 'end'. 
+        message_text (str): The actual text message to be colorized.
 
     Returns:
-        
+        str: The colorized message.
     """
-    message_colors = {
-        'prompt': Fore.CYAN,
-        'error': Fore.RED,
-        'end': Fore.GREEN,
-    }
-    color = message_colors.get(message_type, '')
+    
+    color = MESSAGE_COLORS.get(message_type, '')
     return f'{color}{message_text}{Style.RESET_ALL}' if color else message_text
 
 
@@ -260,7 +262,7 @@ def print_generated_password_entropy_strength(settings: PasswordSettings) -> Non
 
 def regenerate_random_password(settings: PasswordSettings) -> None:
     """
-    Continuously prompts the user to regenerate a password until they decline.
+    Continuously prompt the user to regenerate a password until they decline.
     
     Args:
         settings (dict): A dictionary of password settings used for generation.
@@ -293,7 +295,7 @@ def regenerate_random_password(settings: PasswordSettings) -> None:
 
 def run(settings: PasswordSettings) -> None:
     """
-    Runs the main password generation workflow.
+    Run the main password generation workflow.
 
     This function performs the following steps:
     1. Clears the terminal screen.
