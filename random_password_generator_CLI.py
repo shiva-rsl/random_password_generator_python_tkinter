@@ -7,6 +7,8 @@ init(autoreset=True)
 
 # ----------------------------- Constants ----------------------------- #
 BORDER = '*' * 20
+VALID_YES = {'y', ''}
+VALID_NO = 'n'
 COLOR_MAP = {
     'Very Weak': Fore.RED,
     'Weak': Fore.LIGHTRED_EX,
@@ -17,6 +19,27 @@ COLOR_MAP = {
 
 
 # ----------------------------- Functions ----------------------------- #
+
+def colorize_outputs(message_type: str, message_text: str) -> str:
+    """
+    Colorize the outputs
+    
+    Args:
+        message_type (str):
+        message_text (str):
+
+    Returns:
+        
+    """
+    message_colors = {
+        'prompt': Fore.CYAN,
+        'error': Fore.RED,
+        'end': Fore.GREEN,
+    }
+    color = message_colors.get(message_type, '')
+    return f'{color}{message_text}{Style.RESET_ALL}' if color else message_text
+
+
 def ask_if_change_settings(settings: PasswordSettings) -> None:
     
     """
@@ -34,27 +57,29 @@ def ask_if_change_settings(settings: PasswordSettings) -> None:
     Returns:
         None
     """
-
-    prompt = (
-        "Do you want to change the default settings? "
-        "(y = yes, n = no, Enter = yes): "
-    )
-    valid_yes = {'y', ''}
-    valid_no = 'n'
-
     while True:
-        user_answer = input(prompt).strip().lower()
-
-        if user_answer in valid_yes:
+        user_answer = input(
+            colorize_outputs(
+                'prompt',
+                'Do you want to change the default settings? (y = yes, n = no, Enter = yes) '
+            )
+        ).strip().lower()
+        
+        if user_answer in VALID_YES:
             print('-'*5, 'Changing default settings', '-'*5, sep='')
             get_password_settings(settings)
             break
-        elif user_answer == valid_no:
+        elif user_answer == VALID_NO:
             break
         else:
-            print("Invalid input! Please enter 'y' for yes, "
-                  "'n' for no, or press Enter to accept the default.")
-            
+            print(
+                colorize_outputs(
+                    "error",
+                    "Invalid input! Please enter 'y' for yes, 'n' for no, "
+                    "or press Enter to accept the default."
+                )
+            )
+
 
 def get_user_password_length(option: str, default: int,
                             min_length: int = MIN_PASSWORD_LENGTH, 
@@ -77,7 +102,9 @@ def get_user_password_length(option: str, default: int,
     """
 
     while True:
-        user_input = input(f'{option} (Default is {default}): ')
+        user_input = input(
+            colorize_outputs('prompt', f'{option} (Default is {default}) ')
+        )
         
         if user_input == '':
             return default
@@ -86,11 +113,15 @@ def get_user_password_length(option: str, default: int,
             password_length = int(user_input)
             if min_length <= password_length <= max_length:
                 return password_length
-            
-        print('Invalid input!')
-        print('Password length must be between '
-             f'{min_length} and {max_length}. '
-              'Please try again.')
+        
+        print(
+            colorize_outputs(
+                'error',
+                'Invalid input!'
+                f'Password length must be between {min_length} and {max_length}. '
+                f'Please try again.{Style.RESET_ALL}'
+            )
+        )
 
 
 def get_user_password_settings(option: str, default: bool) -> bool:
@@ -109,21 +140,23 @@ def get_user_password_settings(option: str, default: bool) -> bool:
     Returns:
         bool: True if the option should be included, False otherwise.
     """
-
-    prompt = (
-        f"Include {option}? (Default is {default}) "
-        "(y = True, n = False, Enter = Default): "
-    )
-    
     while True:
-        user_input = input(prompt).strip().lower()
+        user_input = input(
+            colorize_outputs(
+                'prompt',
+                f"Include {option}? (Default is {default}) "
+                "(y = True, n = False, Enter = Default): "
+            )
+        ).strip().lower()
 
         if user_input == '':
             return default
         if user_input in {'y', 'n'}:
             return user_input == 'y'
 
-        print("Invalid input! Please enter 'y' or 'n'.")
+        print(colorize_outputs(
+            "error", "Invalid input! Please enter 'y' or 'n'."
+        ))
 
 
 def get_password_settings(settings: PasswordSettings) -> None:
@@ -224,6 +257,7 @@ def print_generated_password_entropy_strength(settings: PasswordSettings) -> Non
     print(BORDER)
 
 
+
 def regenerate_random_password(settings: PasswordSettings) -> None:
     """
     Continuously prompts the user to regenerate a password until they decline.
@@ -234,24 +268,27 @@ def regenerate_random_password(settings: PasswordSettings) -> None:
     Returns:
         None
     """
-    
-    prompt = "Regenerate? [y/n] (Enter = yes by default): "
-    valid_yes = ['y', '']
-    valid_no = 'n'
-
     while True:
+        user_input = input(
+            colorize_outputs(
+                'prompt',
+                'Regenerate? [y/n] (Enter = yes by default): '
+            )
+        ).strip().lower()
 
-        user_input = input(prompt).strip().lower()
-
-        if user_input in valid_yes:
+        if user_input in VALID_YES:
             print_generated_password_entropy_strength(settings)
 
-        elif user_input == valid_no:
-            print('Password generator session ended. Goodbye!')
+        elif user_input == VALID_NO:
+            print(colorize_outputs(
+                'end', 'Password generator session ended. Goodbye! \n'
+            ))
             break
 
         else:
-            print("Invalid input! Please enter 'y' or 'n'.")
+            print(colorize_outputs(
+                "error", "Invalid input! Please enter 'y' or 'n'."
+            ))
             
 
 def run(settings: PasswordSettings) -> None:
